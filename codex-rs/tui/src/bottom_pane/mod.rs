@@ -589,7 +589,7 @@ impl BottomPane {
         urls
     }
 
-    /// Update the status indicator header (defaults to "Working") and details below it.
+    /// Update the status indicator header (defaults to "处理中") and details below it.
     ///
     /// Passing `None` clears any existing details. No-ops if the status indicator is not active.
     pub(crate) fn update_status(
@@ -884,10 +884,7 @@ impl BottomPane {
             self.disable_paste_burst,
         );
         self.pause_status_timer_for_modal();
-        self.set_composer_input_enabled(
-            false,
-            Some("Answer the questions to continue.".to_string()),
-        );
+        self.set_composer_input_enabled(false, Some("请先回答问题后再继续。".to_string()));
         self.push_view(Box::new(modal));
     }
 
@@ -1186,8 +1183,8 @@ mod tests {
             r0.push(buf[(x, 0)].symbol().chars().next().unwrap_or(' '));
         }
         assert!(
-            !r0.contains("Working"),
-            "overlay should not render above modal"
+            !r0.contains('•'),
+            "overlay should not render status indicator above modal"
         );
     }
 
@@ -1226,7 +1223,7 @@ mod tests {
             "no active modal view after denial"
         );
 
-        // Render and ensure the top row includes the Working header and a composer line below.
+        // Render and ensure the top row includes the status indicator and a composer line below.
         // Give the animation thread a moment to tick.
         std::thread::sleep(Duration::from_millis(120));
         let area = Rect::new(0, 0, 40, 6);
@@ -1237,8 +1234,8 @@ mod tests {
             row0.push(buf[(x, 0)].symbol().chars().next().unwrap_or(' '));
         }
         assert!(
-            row0.contains("Working"),
-            "expected Working header after denial on row 0: {row0:?}"
+            row0.contains('•') && row0.contains("esc"),
+            "expected status indicator header after denial on row 0: {row0:?}"
         );
 
         // Composer placeholder should be visible somewhere below.
@@ -1283,7 +1280,10 @@ mod tests {
         pane.render(area, &mut buf);
 
         let bufs = snapshot_buffer(&buf);
-        assert!(bufs.contains("• Working"), "expected Working header");
+        assert!(
+            bufs.contains('•') && bufs.contains("esc"),
+            "expected status indicator header"
+        );
     }
 
     #[test]
@@ -1366,7 +1366,10 @@ mod tests {
 
         let area = Rect::new(0, 0, width, after);
         let rendered = render_snapshot(&pane, area);
-        assert!(rendered.contains("background terminal running · /ps to view"));
+        assert!(
+            rendered.contains("/ps") && rendered.contains("/clean"),
+            "expected unified-exec summary shortcuts in status row"
+        );
     }
 
     #[test]
@@ -1386,7 +1389,7 @@ mod tests {
 
         pane.set_task_running(true);
         pane.update_status(
-            "Working".to_string(),
+            "处理中".to_string(),
             Some("First detail line\nSecond detail line".to_string()),
             StatusDetailsCapitalization::CapitalizeFirst,
             STATUS_DETAILS_DEFAULT_MAX_LINES,

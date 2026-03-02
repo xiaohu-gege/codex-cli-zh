@@ -192,38 +192,34 @@ impl StatusHistoryCell {
             ));
         }
         let (model_name, model_details) = compose_model_display(model_name, &config_entries);
-        let approval = config_entries
-            .iter()
-            .find(|(k, _)| *k == "approval")
-            .map(|(_, v)| v.clone())
-            .unwrap_or_else(|| "<unknown>".to_string());
         let sandbox = match config.permissions.sandbox_policy.get() {
-            SandboxPolicy::DangerFullAccess => "danger-full-access".to_string(),
-            SandboxPolicy::ReadOnly { .. } => "read-only".to_string(),
+            SandboxPolicy::DangerFullAccess => "完全访问".to_string(),
+            SandboxPolicy::ReadOnly { .. } => "只读".to_string(),
             SandboxPolicy::WorkspaceWrite {
                 network_access: true,
                 ..
-            } => "workspace-write with network access".to_string(),
-            SandboxPolicy::WorkspaceWrite { .. } => "workspace-write".to_string(),
+            } => "工作区可写（允许联网）".to_string(),
+            SandboxPolicy::WorkspaceWrite { .. } => "工作区可写".to_string(),
             SandboxPolicy::ExternalSandbox { network_access } => {
                 if matches!(network_access, NetworkAccess::Enabled) {
-                    "external-sandbox (network access enabled)".to_string()
+                    "外部沙箱（允许联网）".to_string()
                 } else {
-                    "external-sandbox".to_string()
+                    "外部沙箱".to_string()
                 }
             }
         };
+        let approval_label = approval_policy_label(config.permissions.approval_policy.value());
         let permissions = if config.permissions.approval_policy.value() == AskForApproval::OnRequest
             && *config.permissions.sandbox_policy.get()
                 == SandboxPolicy::new_workspace_write_policy()
         {
-            "Default".to_string()
+            "默认".to_string()
         } else if config.permissions.approval_policy.value() == AskForApproval::Never
             && *config.permissions.sandbox_policy.get() == SandboxPolicy::DangerFullAccess
         {
-            "Full Access".to_string()
+            "完全访问".to_string()
         } else {
-            format!("Custom ({sandbox}, {approval})")
+            format!("自定义（{sandbox}，{approval_label}）")
         };
         let agents_summary = compose_agents_summary(config);
         let model_provider = format_model_provider(config);
@@ -277,13 +273,13 @@ impl StatusHistoryCell {
 
         vec![
             Span::from(total_fmt),
-            Span::from(" total "),
+            Span::from(" 总计 "),
             Span::from(" (").dim(),
             Span::from(input_fmt).dim(),
-            Span::from(" input").dim(),
+            Span::from(" 输入").dim(),
             Span::from(" + ").dim(),
             Span::from(output_fmt).dim(),
-            Span::from(" output").dim(),
+            Span::from(" 输出").dim(),
             Span::from(")").dim(),
         ]
     }
@@ -295,10 +291,10 @@ impl StatusHistoryCell {
         let window_fmt = format_tokens_compact(context.window);
 
         Some(vec![
-            Span::from(format!("{percent}% left")),
+            Span::from(format!("{percent}% 剩余")),
             Span::from(" (").dim(),
             Span::from(used_fmt).dim(),
-            Span::from(" used / ").dim(),
+            Span::from(" 已用 / ").dim(),
             Span::from(window_fmt).dim(),
             Span::from(")").dim(),
         ])
@@ -312,9 +308,7 @@ impl StatusHistoryCell {
         match &self.rate_limits {
             StatusRateLimitData::Available(rows_data) => {
                 if rows_data.is_empty() {
-                    return vec![
-                        formatter.line("Limits", vec![Span::from("data not available yet").dim()]),
-                    ];
+                    return vec![formatter.line("配额", vec![Span::from("数据暂不可用").dim()])];
                 }
 
                 self.rate_limit_row_lines(rows_data, available_inner_width, formatter)
@@ -323,13 +317,13 @@ impl StatusHistoryCell {
                 let mut lines =
                     self.rate_limit_row_lines(rows_data, available_inner_width, formatter);
                 lines.push(formatter.line(
-                    "Warning",
-                    vec![Span::from("limits may be stale - start new turn to refresh.").dim()],
+                    "警告",
+                    vec![Span::from("配额数据可能已过期，可发起新回合刷新。").dim()],
                 ));
                 lines
             }
             StatusRateLimitData::Missing => {
-                vec![formatter.line("Limits", vec![Span::from("data not available yet").dim()])]
+                vec![formatter.line("配额", vec![Span::from("数据暂不可用").dim()])]
             }
         }
     }
@@ -358,7 +352,7 @@ impl StatusHistoryCell {
                     let base_line = Line::from(base_spans.clone());
 
                     if let Some(resets_at) = resets_at.as_ref() {
-                        let resets_span = Span::from(format!("(resets {resets_at})")).dim();
+                        let resets_span = Span::from(format!("（重置于 {resets_at}）")).dim();
                         let mut inline_spans = base_spans.clone();
                         inline_spans.push(Span::from(" ").dim());
                         inline_spans.push(resets_span.clone());
@@ -391,7 +385,7 @@ impl StatusHistoryCell {
         match &self.rate_limits {
             StatusRateLimitData::Available(rows) => {
                 if rows.is_empty() {
-                    push_label(labels, seen, "Limits");
+                    push_label(labels, seen, "配额");
                 } else {
                     for row in rows {
                         push_label(labels, seen, row.label.as_str());
@@ -402,9 +396,9 @@ impl StatusHistoryCell {
                 for row in rows {
                     push_label(labels, seen, row.label.as_str());
                 }
-                push_label(labels, seen, "Warning");
+                push_label(labels, seen, "警告");
             }
-            StatusRateLimitData::Missing => push_label(labels, seen, "Limits"),
+            StatusRateLimitData::Missing => push_label(labels, seen, "配额"),
         }
     }
 }
@@ -433,11 +427,11 @@ impl HistoryCell for StatusHistoryCell {
                 (None, None) => "ChatGPT".to_string(),
             },
             StatusAccountDisplay::ApiKey => {
-                "API key configured (run codex login to use ChatGPT)".to_string()
+                "已配置 API Key（运行 codex login 可使用 ChatGPT 账号）".to_string()
             }
         });
 
-        let mut labels: Vec<String> = vec!["Model", "Directory", "Permissions", "Agents.md"]
+        let mut labels: Vec<String> = vec!["模型", "目录", "权限", "AGENTS.md"]
             .into_iter()
             .map(str::to_string)
             .collect();
@@ -445,26 +439,26 @@ impl HistoryCell for StatusHistoryCell {
         let thread_name = self.thread_name.as_deref().filter(|name| !name.is_empty());
 
         if self.model_provider.is_some() {
-            push_label(&mut labels, &mut seen, "Model provider");
+            push_label(&mut labels, &mut seen, "模型提供方");
         }
         if account_value.is_some() {
-            push_label(&mut labels, &mut seen, "Account");
+            push_label(&mut labels, &mut seen, "账号");
         }
         if thread_name.is_some() {
-            push_label(&mut labels, &mut seen, "Thread name");
+            push_label(&mut labels, &mut seen, "线程名");
         }
         if self.session_id.is_some() {
-            push_label(&mut labels, &mut seen, "Session");
+            push_label(&mut labels, &mut seen, "会话");
         }
         if self.session_id.is_some() && self.forked_from.is_some() {
-            push_label(&mut labels, &mut seen, "Forked from");
+            push_label(&mut labels, &mut seen, "分叉来源");
         }
         if self.collaboration_mode.is_some() {
-            push_label(&mut labels, &mut seen, "Collaboration mode");
+            push_label(&mut labels, &mut seen, "协作模式");
         }
-        push_label(&mut labels, &mut seen, "Token usage");
+        push_label(&mut labels, &mut seen, "Token 用量");
         if self.token_usage.context_window.is_some() {
-            push_label(&mut labels, &mut seen, "Context window");
+            push_label(&mut labels, &mut seen, "上下文窗口");
         }
 
         self.collect_rate_limit_labels(&mut seen, &mut labels);
@@ -473,15 +467,13 @@ impl HistoryCell for StatusHistoryCell {
         let value_width = formatter.value_width(available_inner_width);
 
         let note_first_line = Line::from(vec![
-            Span::from("Visit ").cyan(),
+            Span::from("可访问 ").cyan(),
             "https://chatgpt.com/codex/settings/usage"
                 .cyan()
                 .underlined(),
-            Span::from(" for up-to-date").cyan(),
+            Span::from(" 查看最新").cyan(),
         ]);
-        let note_second_line = Line::from(vec![
-            Span::from("information on rate limits and credits").cyan(),
-        ]);
+        let note_second_line = Line::from(vec![Span::from("配额与额度信息").cyan()]);
         let note_lines = adaptive_wrap_lines(
             [note_first_line, note_second_line],
             RtOptions::new(available_inner_width),
@@ -498,41 +490,41 @@ impl HistoryCell for StatusHistoryCell {
 
         let directory_value = format_directory_display(&self.directory, Some(value_width));
 
-        lines.push(formatter.line("Model", model_spans));
+        lines.push(formatter.line("模型", model_spans));
         if let Some(model_provider) = self.model_provider.as_ref() {
-            lines.push(formatter.line("Model provider", vec![Span::from(model_provider.clone())]));
+            lines.push(formatter.line("模型提供方", vec![Span::from(model_provider.clone())]));
         }
-        lines.push(formatter.line("Directory", vec![Span::from(directory_value)]));
-        lines.push(formatter.line("Permissions", vec![Span::from(self.permissions.clone())]));
-        lines.push(formatter.line("Agents.md", vec![Span::from(self.agents_summary.clone())]));
+        lines.push(formatter.line("目录", vec![Span::from(directory_value)]));
+        lines.push(formatter.line("权限", vec![Span::from(self.permissions.clone())]));
+        lines.push(formatter.line("AGENTS.md", vec![Span::from(self.agents_summary.clone())]));
 
         if let Some(account_value) = account_value {
-            lines.push(formatter.line("Account", vec![Span::from(account_value)]));
+            lines.push(formatter.line("账号", vec![Span::from(account_value)]));
         }
 
         if let Some(thread_name) = thread_name {
-            lines.push(formatter.line("Thread name", vec![Span::from(thread_name.to_string())]));
+            lines.push(formatter.line("线程名", vec![Span::from(thread_name.to_string())]));
         }
         if let Some(collab_mode) = self.collaboration_mode.as_ref() {
-            lines.push(formatter.line("Collaboration mode", vec![Span::from(collab_mode.clone())]));
+            lines.push(formatter.line("协作模式", vec![Span::from(collab_mode.clone())]));
         }
         if let Some(session) = self.session_id.as_ref() {
-            lines.push(formatter.line("Session", vec![Span::from(session.clone())]));
+            lines.push(formatter.line("会话", vec![Span::from(session.clone())]));
         }
         if self.session_id.is_some()
             && let Some(forked_from) = self.forked_from.as_ref()
         {
-            lines.push(formatter.line("Forked from", vec![Span::from(forked_from.clone())]));
+            lines.push(formatter.line("分叉来源", vec![Span::from(forked_from.clone())]));
         }
 
         lines.push(Line::from(Vec::<Span<'static>>::new()));
         // Hide token usage only for ChatGPT subscribers
         if !matches!(self.account, Some(StatusAccountDisplay::ChatGpt { .. })) {
-            lines.push(formatter.line("Token usage", self.token_usage_spans()));
+            lines.push(formatter.line("Token 用量", self.token_usage_spans()));
         }
 
         if let Some(spans) = self.context_window_spans() {
-            lines.push(formatter.line("Context window", spans));
+            lines.push(formatter.line("上下文窗口", spans));
         }
 
         lines.extend(self.rate_limit_lines(available_inner_width, &formatter));
@@ -545,6 +537,16 @@ impl HistoryCell for StatusHistoryCell {
             .collect();
 
         with_border_with_inner_width(truncated_lines, inner_width)
+    }
+}
+
+fn approval_policy_label(approval: AskForApproval) -> &'static str {
+    match approval {
+        AskForApproval::UnlessTrusted => "不受信任时询问",
+        AskForApproval::OnFailure => "失败时询问",
+        AskForApproval::OnRequest => "按需询问",
+        AskForApproval::Reject(_) => "自动拒绝审批",
+        AskForApproval::Never => "从不询问",
     }
 }
 

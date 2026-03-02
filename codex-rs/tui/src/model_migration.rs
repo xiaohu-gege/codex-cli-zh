@@ -51,8 +51,8 @@ impl MigrationMenuOption {
 
     fn label(self) -> &'static str {
         match self {
-            Self::TryNewModel => "Try new model",
-            Self::UseExistingModel => "Use existing model",
+            Self::TryNewModel => "试用新模型",
+            Self::UseExistingModel => "继续使用当前模型",
         }
     }
 }
@@ -81,10 +81,7 @@ pub(crate) fn migration_copy_for_models(
         };
     }
 
-    let heading_text = Span::from(format!(
-        "Codex just got an upgrade. Introducing {target_display_name}."
-    ))
-    .bold();
+    let heading_text = Span::from(format!("Codex 已升级，现已推出 {target_display_name}。")).bold();
     let description_line: Line<'static>;
     if let Some(migration_copy) = &migration_copy {
         description_line = Line::from(migration_copy.clone());
@@ -94,7 +91,7 @@ pub(crate) fn migration_copy_for_models(
             .map(Line::from)
             .unwrap_or_else(|| {
                 Line::from(format!(
-                    "{target_display_name} is recommended for better performance and reliability."
+                    "推荐使用 {target_display_name}，获得更好的性能与稳定性。"
                 ))
             });
     }
@@ -102,14 +99,14 @@ pub(crate) fn migration_copy_for_models(
     let mut content = vec![];
     if migration_copy.is_none() {
         content.push(Line::from(format!(
-            "We recommend switching from {current_model} to {target_model}."
+            "建议从 {current_model} 切换到 {target_model}。"
         )));
         content.push(Line::from(""));
     }
 
     if let Some(model_link) = model_link {
         content.push(Line::from(vec![
-            format!("{description_line} Learn more about {target_display_name} at ").into(),
+            format!("{description_line} 了解更多：").into(),
             model_link.cyan().underlined(),
         ]));
         content.push(Line::from(""));
@@ -120,10 +117,10 @@ pub(crate) fn migration_copy_for_models(
 
     if can_opt_out {
         content.push(Line::from(format!(
-            "You can continue using {current_model} if you prefer."
+            "如果你愿意，也可以继续使用 {current_model}。"
         )));
     } else {
-        content.push(Line::from("Press enter to continue".dim()));
+        content.push(Line::from("按 Enter 继续".dim()));
     }
 
     ModelMigrationCopy {
@@ -334,7 +331,7 @@ impl ModelMigrationScreen {
     fn render_menu(&self, column: &mut ColumnRenderable) {
         column.push(Line::from(""));
         column.push(
-            Paragraph::new("Choose how you'd like Codex to proceed.")
+            Paragraph::new("请选择 Codex 接下来的处理方式。")
                 .wrap(Wrap { trim: false })
                 .inset(Insets::tlbr(0, 2, 0, 0)),
         );
@@ -351,13 +348,13 @@ impl ModelMigrationScreen {
         column.push(Line::from(""));
         column.push(
             Line::from(vec![
-                "Use ".dim(),
+                "使用 ".dim(),
                 key_hint::plain(KeyCode::Up).into(),
                 "/".dim(),
                 key_hint::plain(KeyCode::Down).into(),
-                " to move, press ".dim(),
+                " 上下移动，按 ".dim(),
                 key_hint::plain(KeyCode::Enter).into(),
-                " to confirm".dim(),
+                " 确认".dim(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );

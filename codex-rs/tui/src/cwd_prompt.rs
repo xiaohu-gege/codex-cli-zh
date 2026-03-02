@@ -32,15 +32,15 @@ pub(crate) enum CwdPromptAction {
 impl CwdPromptAction {
     fn verb(self) -> &'static str {
         match self {
-            CwdPromptAction::Resume => "resume",
-            CwdPromptAction::Fork => "fork",
+            CwdPromptAction::Resume => "恢复",
+            CwdPromptAction::Fork => "分叉",
         }
     }
 
     fn past_participle(self) -> &'static str {
         match self {
-            CwdPromptAction::Resume => "resumed",
-            CwdPromptAction::Fork => "forked",
+            CwdPromptAction::Resume => "恢复",
+            CwdPromptAction::Fork => "分叉",
         }
     }
 }
@@ -202,39 +202,35 @@ impl WidgetRef for &CwdPromptScreen {
 
         column.push("");
         column.push(Line::from(vec![
-            "Choose working directory to ".into(),
+            "请选择用于".into(),
             action_verb.bold(),
-            " this session".into(),
+            "该会话的工作目录".into(),
         ]));
         column.push("");
         column.push(
-            Line::from(format!(
-                "Session = latest cwd recorded in the {action_past} session"
-            ))
-            .dim()
-            .inset(Insets::tlbr(0, 2, 0, 0)),
-        );
-        column.push(
-            Line::from("Current = your current working directory".dim())
+            Line::from(format!("会话目录 = {action_past}会话里记录的最新工作目录"))
+                .dim()
                 .inset(Insets::tlbr(0, 2, 0, 0)),
         );
+        column
+            .push(Line::from("当前目录 = 你现在的工作目录".dim()).inset(Insets::tlbr(0, 2, 0, 0)));
         column.push("");
         column.push(selection_option_row(
             0,
-            format!("Use session directory ({session_cwd})"),
+            format!("使用会话目录（{session_cwd}）"),
             self.highlighted == CwdSelection::Session,
         ));
         column.push(selection_option_row(
             1,
-            format!("Use current directory ({current_cwd})"),
+            format!("使用当前目录（{current_cwd}）"),
             self.highlighted == CwdSelection::Current,
         ));
         column.push("");
         column.push(
             Line::from(vec![
-                "Press ".dim(),
+                "按 ".dim(),
                 key_hint::plain(KeyCode::Enter).into(),
-                " to continue".dim(),
+                " 继续".dim(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );

@@ -3,9 +3,9 @@ source: tui/src/chatwidget/tests.rs
 expression: terminal.backend()
 ---
 "                                                                                "
-"• Booting MCP server: alpha (0s • esc to interrupt)                             "
+"• 正在启动 MCP 服务：alpha (0s • esc 中断)                                      " Hidden by multi-width symbols: [(3, " "), (5, " "), (7, " "), (9, " "), (16, " "), (18, " "), (20, " "), (38, " "), (40, " ")]
 "                                                                                "
 "                                                                                "
 "› Ask Codex to do anything                                                      "
 "                                                                                "
-"  ? for shortcuts                                            100% context left  "
+"  ? 快捷键                                                     剩余上下文 100%  " Hidden by multi-width symbols: [(5, " "), (7, " "), (9, " "), (64, " "), (66, " "), (68, " "), (70, " "), (72, " ")]

@@ -76,7 +76,7 @@ pub(crate) async fn run_update_prompt_if_needed(
         Some(UpdateSelection::NotNow) | None => Ok(UpdatePromptOutcome::Continue),
         Some(UpdateSelection::DontRemind) => {
             if let Err(err) = updates::dismiss_version(config, screen.latest_version()).await {
-                tracing::error!("Failed to persist update dismissal: {err}");
+                tracing::error!("保存更新提醒忽略状态失败：{err}");
             }
             Ok(UpdatePromptOutcome::Continue)
         }
@@ -191,7 +191,7 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push("");
         column.push(Line::from(vec![
             padded_emoji("  ✨").bold().cyan(),
-            "Update available!".bold(),
+            "发现可用更新！".bold(),
             " ".into(),
             format!(
                 "{current} -> {latest}",
@@ -203,7 +203,7 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push("");
         column.push(
             Line::from(vec![
-                "Release notes: ".dim(),
+                "发布说明：".dim(),
                 "https://github.com/openai/codex/releases/latest"
                     .dim()
                     .underlined(),
@@ -213,25 +213,25 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push("");
         column.push(selection_option_row(
             0,
-            format!("Update now (runs `{update_command}`)"),
+            format!("立即更新（执行 `{update_command}`）"),
             self.highlighted == UpdateSelection::UpdateNow,
         ));
         column.push(selection_option_row(
             1,
-            "Skip".to_string(),
+            "跳过".to_string(),
             self.highlighted == UpdateSelection::NotNow,
         ));
         column.push(selection_option_row(
             2,
-            "Skip until next version".to_string(),
+            "跳过，直到下个版本再提醒".to_string(),
             self.highlighted == UpdateSelection::DontRemind,
         ));
         column.push("");
         column.push(
             Line::from(vec![
-                "Press ".dim(),
+                "按 ".dim(),
                 key_hint::plain(KeyCode::Enter).into(),
-                " to continue".dim(),
+                " 继续".dim(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );

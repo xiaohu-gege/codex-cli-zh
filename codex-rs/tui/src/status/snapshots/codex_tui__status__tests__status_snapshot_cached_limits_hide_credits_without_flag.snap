@@ -4,20 +4,20 @@ expression: sanitized
 ---
 /status
 
-╭─────────────────────────────────────────────────────────────────────╮
-│  >_ OpenAI Codex (v0.0.0)                                           │
-│                                                                     │
-│ Visit https://chatgpt.com/codex/settings/usage for up-to-date       │
-│ information on rate limits and credits                              │
-│                                                                     │
-│  Model:            gpt-5.1-codex (reasoning none, summaries auto)   │
-│  Directory: [[workspace]]                                           │
-│  Permissions:      Custom (read-only, on-request)                   │
-│  Agents.md:        <none>                                           │
-│                                                                     │
-│  Token usage:      1.05K total  (700 input + 350 output)            │
-│  Context window:   100% left (1.45K used / 272K)                    │
-│  5h limit:         [████████░░░░░░░░░░░░] 40% left (resets 11:32)   │
-│  Weekly limit:     [█████████████░░░░░░░] 65% left (resets 11:52)   │
-│  Warning:          limits may be stale - start new turn to refresh. │
-╰─────────────────────────────────────────────────────────────────────╯
+╭─────────────────────────────────────────────────────────────────╮
+│  >_ OpenAI Codex (v0.0.0)                                       │
+│                                                                 │
+│ 可访问 https://chatgpt.com/codex/settings/usage 查看最新        │
+│ 配额与额度信息                                                  │
+│                                                                 │
+│  模型:         gpt-5.1-codex (推理：无, 总结：自动)             │
+│  目录: [[workspace]]                                            │
+│  权限:         自定义（只读，按需询问）                         │
+│  AGENTS.md:    无                                               │
+│                                                                 │
+│  Token 用量:   1.05K 总计  (700 输入 + 350 输出)                │
+│  上下文窗口:   100% 剩余 (1.45K 已用 / 272K)                    │
+│  5h配额:       [████████░░░░░░░░░░░░] 40% 剩余 （重置于 11:32） │
+│  每周配额:     [█████████████░░░░░░░] 65% 剩余 （重置于 11:52） │
+│  警告:         配额数据可能已过期，可发起新回合刷新。           │
+╰─────────────────────────────────────────────────────────────────╯

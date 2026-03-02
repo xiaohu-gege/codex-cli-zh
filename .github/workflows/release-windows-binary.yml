@@ -1,0 +1,103 @@
+name: release-windows-binary
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (for example: v1.0.0)"
+        required: true
+      prerelease:
+        description: "Mark this release as pre-release"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build codex.exe
+        shell: pwsh
+        run: |
+          cargo build --release --locked --manifest-path codex-rs/Cargo.toml -p codex-cli --bin codex
+
+      - name: Package Windows binary
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item codex-rs/target/release/codex.exe dist/codex.exe
+          @"
+          Codex CLI (Windows)
+
+          1) Unzip this package.
+          2) Open PowerShell in this folder.
+          3) Run: .\codex.exe --help
+
+          Optional:
+          - Move codex.exe to a custom folder and add it to PATH.
+          "@ | Set-Content -Path dist/README.txt -Encoding UTF8
+          Compress-Archive -Path dist/* -DestinationPath "codex-${env:TAG_NAME}-windows-x86_64.zip" -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: codex-windows-x86_64
+          path: codex-${{ env.TAG_NAME }}-windows-x86_64.zip
+
+  create-release:
+    needs: build-windows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v7
+        with:
+          path: dist
+
+      - name: Collect release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          find dist -type f -name "*.zip" -exec cp {} release/ \;
+          ls -lh release
+
+      - name: Validate tag format
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.].+)?$ ]] || {
+            echo "Invalid tag format: ${TAG_NAME}"
+            echo "Expected format like v1.0.0 / v1.0.0-beta.1"
+            exit 1
+          }
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ env.TAG_NAME }}
+          generate_release_notes: true
+          prerelease: ${{ github.event_name == 'workflow_dispatch' && inputs.prerelease || false }}
+          files: release/*.zip

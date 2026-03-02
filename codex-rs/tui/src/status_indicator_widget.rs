@@ -42,7 +42,7 @@ pub(crate) enum StatusDetailsCapitalization {
 
 /// Displays a single-line in-progress status with optional wrapped details.
 pub(crate) struct StatusIndicatorWidget {
-    /// Animated header text (defaults to "Working").
+    /// Animated header text (defaults to "处理中").
     header: String,
     details: Option<String>,
     details_max_lines: usize,
@@ -82,7 +82,7 @@ impl StatusIndicatorWidget {
         animations_enabled: bool,
     ) -> Self {
         Self {
-            header: String::from("Working"),
+            header: String::from("处理中"),
             details: None,
             details_max_lines: STATUS_DETAILS_DEFAULT_MAX_LINES,
             inline_message: None,
@@ -125,7 +125,7 @@ impl StatusIndicatorWidget {
             });
     }
 
-    /// Update the inline suffix text shown after `({elapsed} • esc to interrupt)`.
+    /// Update the inline suffix text shown after `({elapsed} • esc 中断)`.
     ///
     /// Callers should provide plain, already-contextualized text. Passing
     /// verbose status prose here can cause frequent width truncation and hide
@@ -261,7 +261,7 @@ impl Renderable for StatusIndicatorWidget {
             spans.extend(vec![
                 format!("({pretty_elapsed} • ").dim(),
                 key_hint::plain(KeyCode::Esc).into(),
-                " to interrupt)".dim(),
+                " 中断)".dim(),
             ]);
         } else {
             spans.push(format!("({pretty_elapsed})").dim());

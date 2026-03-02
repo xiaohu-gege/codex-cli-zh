@@ -9,7 +9,7 @@ Buffer {
         "    a message                           ",
         "    with many                           ",
         "    …                                   ",
-        "    ⌥ + ↑ edit                          ",
+        "    ⌥ + ↑ 编辑                          ", // hidden by multi-width symbols: [(11, " "), (13, " ")]
     ],
     styles: [
         x: 0, y: 0, fg: Reset, bg: Reset, underline: Reset, modifier: DIM,
@@ -22,6 +22,8 @@ Buffer {
         x: 0, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: DIM | ITALIC,
         x: 5, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 0, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: DIM,
-        x: 14, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 11, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 12, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: DIM,
+        x: 13, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
     ]
 }

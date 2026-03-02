@@ -2,16 +2,13 @@
 source: tui/src/chatwidget/tests.rs
 expression: popup
 ---
-  Select Model and Effort
-  Access legacy models by running codex -m <model_name> or in your config.toml
+  选 择 模 型 与 推 理 级 别
+  可 通 过  codex -m <model_name> 或  config.toml 使 用 旧 版 模 型
 
-› 1. gpt-5.3-codex (default)  Latest frontier agentic coding model.
-  2. gpt-5.2-codex            Frontier agentic coding model.
-  3. gpt-5.1-codex-max        Codex-optimized flagship for deep and fast
-                              reasoning.
-  4. gpt-5.2                  Latest frontier model with improvements across
-                              knowledge, reasoning and coding
-  5. gpt-5.1-codex-mini       Optimized for codex. Cheaper, faster, but less
-                              capable.
+› 1. gpt-5.3-codex（ 默 认 ）   最 新 前 沿 智 能 体 编 程 模 型 。
+  2. gpt-5.2-codex          前 沿 智 能 体 编 程 模 型 。
+  3. gpt-5.1-codex-max      为  Codex 优 化 的 旗 舰 模 型 ， 兼 顾 深 度 与 速 度 。
+  4. gpt-5.2                最 新 前 沿 模 型 ， 在 知 识 、 推 理 与 编 码 能 力 上 均 有 提 升
+  5. gpt-5.1-codex-mini     针 对  Codex 优 化 。 成 本 更 低 、 速 度 更 快 ， 但 能 力 较 弱 。
 
-  Press enter to select reasoning effort, or esc to dismiss.
+  按  Enter 选 择 推 理 级 别 ， 按  Esc 关 闭 。

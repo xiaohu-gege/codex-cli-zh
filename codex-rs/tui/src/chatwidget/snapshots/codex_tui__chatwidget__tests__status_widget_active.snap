@@ -3,9 +3,9 @@ source: tui/src/chatwidget/tests.rs
 expression: terminal.backend()
 ---
 "                                                                                "
-"• Analyzing (0s • esc to interrupt)                                             "
+"• Analyzing (0s • esc 中断)                                                     " Hidden by multi-width symbols: [(23, " "), (25, " ")]
 "                                                                                "
 "                                                                                "
 "› Ask Codex to do anything                                                      "
 "                                                                                "
-"  ? for shortcuts                                            100% context left  "
+"  ? 快捷键                                                     剩余上下文 100%  " Hidden by multi-width symbols: [(5, " "), (7, " "), (9, " "), (64, " "), (66, " "), (68, " "), (70, " "), (72, " ")]

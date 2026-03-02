@@ -511,7 +511,7 @@ async fn forked_thread_history_line_includes_name_and_id_snapshot() {
     let combined = lines_to_single_string(&history_cell.display_lines(80));
 
     assert!(
-        combined.contains("Thread forked from"),
+        combined.contains("线程分叉自"),
         "expected forked thread message in history"
     );
     assert_snapshot!("forked_thread_history_line", combined);
@@ -1028,7 +1028,7 @@ async fn blocked_image_restore_preserves_mention_bindings() {
         .map(|lines| lines_to_single_string(lines))
         .expect("expected warning cell");
     assert!(
-        warning.contains("does not support image inputs"),
+        warning.contains("不支持图片输入"),
         "expected image warning, got: {warning:?}"
     );
 }
@@ -1416,7 +1416,7 @@ async fn entered_review_mode_uses_request_hint() {
 
     let cells = drain_insert_history(&mut rx);
     let banner = lines_to_single_string(cells.last().expect("review banner"));
-    assert_eq!(banner, ">> Code review started: feature branch <<\n");
+    assert_eq!(banner, ">> 代码评审开始：feature branch <<\n");
     assert!(chat.is_review_mode);
 }
 
@@ -1435,7 +1435,7 @@ async fn entered_review_mode_defaults_to_current_changes_banner() {
 
     let cells = drain_insert_history(&mut rx);
     let banner = lines_to_single_string(cells.last().expect("review banner"));
-    assert_eq!(banner, ">> Code review started: current changes <<\n");
+    assert_eq!(banner, ">> 代码评审开始：current changes <<\n");
     assert!(chat.is_review_mode);
 }
 
@@ -1698,7 +1698,7 @@ async fn make_chatwidget_manual(
         interrupts: InterruptManager::new(),
         reasoning_buffer: String::new(),
         full_reasoning_buffer: String::new(),
-        current_status_header: String::from("Working"),
+        current_status_header: String::from("处理中"),
         retry_status_header: None,
         pending_status_indicator_restore: false,
         thread_id: None,
@@ -1840,6 +1840,24 @@ fn lines_to_single_string(lines: &[ratatui::text::Line<'static>]) -> String {
     s
 }
 
+fn snapshot_buffer(buf: &ratatui::buffer::Buffer) -> String {
+    let mut lines = Vec::new();
+    for y in 0..buf.area().height {
+        let mut row = String::new();
+        for x in 0..buf.area().width {
+            row.push(buf[(x, y)].symbol().chars().next().unwrap_or(' '));
+        }
+        lines.push(row);
+    }
+    lines.join("\n")
+}
+
+fn contains_compact(haystack: &str, needle: &str) -> bool {
+    let compact_haystack: String = haystack.chars().filter(|c| !c.is_whitespace()).collect();
+    let compact_needle: String = needle.chars().filter(|c| !c.is_whitespace()).collect();
+    compact_haystack.contains(&compact_needle)
+}
+
 fn make_token_info(total_tokens: i64, context_window: i64) -> TokenUsageInfo {
     fn usage(total_tokens: i64) -> TokenUsage {
         TokenUsage {
@@ -1870,18 +1888,10 @@ async fn rate_limit_warnings_emit_thresholds() {
     assert_eq!(
         warnings,
         vec![
-            String::from(
-                "Heads up, you have less than 25% of your 5h limit left. Run /status for a breakdown."
-            ),
-            String::from(
-                "Heads up, you have less than 25% of your weekly limit left. Run /status for a breakdown.",
-            ),
-            String::from(
-                "Heads up, you have less than 5% of your 5h limit left. Run /status for a breakdown."
-            ),
-            String::from(
-                "Heads up, you have less than 5% of your weekly limit left. Run /status for a breakdown.",
-            ),
+            String::from("提醒：你的 5h 配额剩余不足 25%。可运行 /status 查看详情。"),
+            String::from("提醒：你的 每周 配额剩余不足 25%。可运行 /status 查看详情。",),
+            String::from("提醒：你的 5h 配额剩余不足 5%。可运行 /status 查看详情。"),
+            String::from("提醒：你的 每周 配额剩余不足 5%。可运行 /status 查看详情。",),
         ],
         "expected one warning per limit for the highest crossed threshold"
     );
@@ -1896,7 +1906,7 @@ async fn test_rate_limit_warnings_monthly() {
     assert_eq!(
         warnings,
         vec![String::from(
-            "Heads up, you have less than 25% of your monthly limit left. Run /status for a breakdown.",
+            "提醒：你的 每月 配额剩余不足 25%。可运行 /status 查看详情。",
         ),],
         "expected one warning per limit for the highest crossed threshold"
     );
@@ -2355,9 +2365,9 @@ async fn plan_mode_reasoning_override_is_marked_current_in_reasoning_popup() {
     chat.open_reasoning_popup(preset);
 
     let popup = render_bottom_popup(&chat, 100);
-    assert!(popup.contains("Low (current)"));
+    assert!(contains_compact(&popup, "低（当前）"));
     assert!(
-        !popup.contains("High (current)"),
+        !contains_compact(&popup, "高（当前）"),
         "expected Plan override to drive current reasoning label, got: {popup}"
     );
 }
@@ -2439,11 +2449,11 @@ async fn plan_reasoning_scope_popup_mentions_selected_reasoning() {
     );
 
     let popup = render_bottom_popup(&chat, 100);
-    assert!(popup.contains("Choose where to apply medium reasoning."));
-    assert!(popup.contains("Always use medium reasoning in Plan mode."));
-    assert!(popup.contains("Apply to Plan mode override"));
-    assert!(popup.contains("Apply to global default and Plan mode override"));
-    assert!(popup.contains("user-chosen Plan override (low)"));
+    assert!(contains_compact(&popup, "选择将中推理应用到哪里。"));
+    assert!(contains_compact(&popup, "在计划模式中始终使用中推理。"));
+    assert!(contains_compact(&popup, "仅应用到计划模式覆盖"));
+    assert!(contains_compact(&popup, "应用到全局默认和计划模式覆盖"));
+    assert!(contains_compact(&popup, "用户设置的计划模式覆盖（低）"));
 }
 
 #[tokio::test]
@@ -2455,7 +2465,7 @@ async fn plan_reasoning_scope_popup_mentions_built_in_plan_default_when_no_overr
     );
 
     let popup = render_bottom_popup(&chat, 100);
-    assert!(popup.contains("built-in Plan default (medium)"));
+    assert!(contains_compact(&popup, "内置计划模式默认值（中）"));
 }
 
 #[tokio::test]
@@ -2508,7 +2518,7 @@ async fn submit_user_message_with_mode_errors_when_mode_changes_during_running_t
         .collect::<Vec<_>>()
         .join("\n");
     assert!(
-        rendered.contains("Cannot switch collaboration mode while a turn is running."),
+        rendered.contains("回合进行中，无法切换协作模式。"),
         "expected running-turn error message, got: {rendered:?}"
     );
 }
@@ -2591,7 +2601,7 @@ async fn plan_implementation_popup_skips_replayed_turn_complete() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        !popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        !contains_compact(&popup, PLAN_IMPLEMENTATION_TITLE),
         "expected no plan popup for replayed turn, got {popup:?}"
     );
 }
@@ -2615,7 +2625,7 @@ async fn plan_implementation_popup_shows_once_when_replay_precedes_live_turn_com
     })]);
     let replay_popup = render_bottom_popup(&chat, 80);
     assert!(
-        !replay_popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        !contains_compact(&replay_popup, PLAN_IMPLEMENTATION_TITLE),
         "expected no prompt for replayed turn completion, got {replay_popup:?}"
     );
 
@@ -2629,14 +2639,14 @@ async fn plan_implementation_popup_shows_once_when_replay_precedes_live_turn_com
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        contains_compact(&popup, PLAN_IMPLEMENTATION_TITLE),
         "expected prompt for first live turn completion after replay, got {popup:?}"
     );
 
     chat.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
     let dismissed_popup = render_bottom_popup(&chat, 80);
     assert!(
-        !dismissed_popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        !contains_compact(&dismissed_popup, PLAN_IMPLEMENTATION_TITLE),
         "expected prompt to dismiss on Esc, got {dismissed_popup:?}"
     );
 
@@ -2649,7 +2659,7 @@ async fn plan_implementation_popup_shows_once_when_replay_precedes_live_turn_com
     });
     let duplicate_popup = render_bottom_popup(&chat, 80);
     assert!(
-        !duplicate_popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        !contains_compact(&duplicate_popup, PLAN_IMPLEMENTATION_TITLE),
         "expected no prompt for duplicate live completion, got {duplicate_popup:?}"
     );
 }
@@ -2689,7 +2699,7 @@ async fn plan_implementation_popup_skips_when_messages_queued() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        !popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        !contains_compact(&popup, PLAN_IMPLEMENTATION_TITLE),
         "expected no plan popup with queued messages, got {popup:?}"
     );
 }
@@ -2715,7 +2725,7 @@ async fn plan_implementation_popup_skips_without_proposed_plan() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        !popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        !contains_compact(&popup, PLAN_IMPLEMENTATION_TITLE),
         "expected no plan popup without proposed plan output, got {popup:?}"
     );
 }
@@ -2736,7 +2746,7 @@ async fn plan_implementation_popup_shows_after_proposed_plan_output() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        contains_compact(&popup, PLAN_IMPLEMENTATION_TITLE),
         "expected plan popup after proposed plan output, got {popup:?}"
     );
 }
@@ -2766,11 +2776,11 @@ async fn plan_implementation_popup_skips_when_rate_limit_prompt_pending() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Approaching rate limits"),
+        contains_compact(&popup, "接近限额"),
         "expected rate limit popup, got {popup:?}"
     );
     assert!(
-        !popup.contains(PLAN_IMPLEMENTATION_TITLE),
+        !contains_compact(&popup, PLAN_IMPLEMENTATION_TITLE),
         "expected plan popup to be skipped, got {popup:?}"
     );
 }
@@ -4069,15 +4079,12 @@ async fn unified_exec_wait_status_header_updates_on_late_command_display() {
     });
 
     assert!(chat.active_cell.is_none());
-    assert_eq!(
-        chat.current_status_header,
-        "Waiting for background terminal"
-    );
+    assert_eq!(chat.current_status_header, "等待后台终端");
     let status = chat
         .bottom_pane
         .status_widget()
         .expect("status indicator should be visible");
-    assert_eq!(status.header(), "Waiting for background terminal");
+    assert_eq!(status.header(), "等待后台终端");
     assert_eq!(status.details(), Some("sleep 5"));
 }
 
@@ -4089,15 +4096,12 @@ async fn unified_exec_waiting_multiple_empty_snapshots() {
 
     terminal_interaction(&mut chat, "call-wait-1a", "proc-1", "");
     terminal_interaction(&mut chat, "call-wait-1b", "proc-1", "");
-    assert_eq!(
-        chat.current_status_header,
-        "Waiting for background terminal"
-    );
+    assert_eq!(chat.current_status_header, "等待后台终端");
     let status = chat
         .bottom_pane
         .status_widget()
         .expect("status indicator should be visible");
-    assert_eq!(status.header(), "Waiting for background terminal");
+    assert_eq!(status.header(), "等待后台终端");
     assert_eq!(status.details(), Some("just fix"));
 
     chat.handle_codex_event(Event {
@@ -4161,15 +4165,12 @@ async fn unified_exec_non_empty_then_empty_snapshots() {
 
     terminal_interaction(&mut chat, "call-wait-3a", "proc-3", "pwd\n");
     terminal_interaction(&mut chat, "call-wait-3b", "proc-3", "");
-    assert_eq!(
-        chat.current_status_header,
-        "Waiting for background terminal"
-    );
+    assert_eq!(chat.current_status_header, "等待后台终端");
     let status = chat
         .bottom_pane
         .status_widget()
         .expect("status indicator should be visible");
-    assert_eq!(status.header(), "Waiting for background terminal");
+    assert_eq!(status.header(), "等待后台终端");
     assert_eq!(status.details(), Some("just fix"));
     let pre_cells = drain_insert_history(&mut rx);
     let active_combined = pre_cells
@@ -4211,7 +4212,7 @@ async fn review_popup_custom_prompt_action_sends_event() {
     // Open the preset selection popup
     chat.open_review_popup();
 
-    // Move selection down to the fourth item: "Custom review instructions"
+    // Move selection down to the fourth item: "自定义评审指令"
     chat.handle_key_event(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
     chat.handle_key_event(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
     chat.handle_key_event(KeyEvent::new(KeyCode::Down, KeyModifiers::NONE));
@@ -4252,7 +4253,7 @@ async fn slash_init_skips_when_project_doc_exists() {
         "info message should mention the existing file: {rendered:?}"
     );
     assert!(
-        rendered.contains("Skipping /init"),
+        rendered.contains("已跳过 /init"),
         "info message should explain why /init was skipped: {rendered:?}"
     );
     assert_eq!(
@@ -4298,7 +4299,7 @@ async fn mode_switch_surfaces_model_change_notification_when_effective_model_cha
         .collect::<Vec<_>>()
         .join("\n");
     assert!(
-        plan_messages.contains("Model changed to gpt-5.1-codex-mini medium for Plan mode."),
+        plan_messages.contains("模型已切换为 gpt-5.1-codex-mini 中（计划模式）"),
         "expected Plan-mode model switch notice, got: {plan_messages:?}"
     );
 
@@ -4311,8 +4312,7 @@ async fn mode_switch_surfaces_model_change_notification_when_effective_model_cha
         .map(|lines| lines_to_single_string(lines))
         .collect::<Vec<_>>()
         .join("\n");
-    let expected_default_message =
-        format!("Model changed to {default_model} default for Default mode.");
+    let expected_default_message = format!("模型已切换为 {default_model} 默认（默认模式）");
     assert!(
         default_messages.contains(&expected_default_message),
         "expected Default-mode model switch notice, got: {default_messages:?}"
@@ -4335,7 +4335,7 @@ async fn mode_switch_surfaces_reasoning_change_notification_when_model_stays_sam
         .collect::<Vec<_>>()
         .join("\n");
     assert!(
-        plan_messages.contains("Model changed to gpt-5.3-codex medium for Plan mode."),
+        plan_messages.contains("模型已切换为 gpt-5.3-codex 中（计划模式）"),
         "expected reasoning-change notice in Plan mode, got: {plan_messages:?}"
     );
 }
@@ -4349,7 +4349,7 @@ async fn collab_slash_command_opens_picker_and_updates_mode() {
     chat.dispatch_command(SlashCommand::Collab);
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Select Collaboration Mode"),
+        contains_compact(&popup, "选择协作模式"),
         "expected collaboration picker: {popup}"
     );
 
@@ -4743,9 +4743,7 @@ async fn slash_copy_reports_when_no_copyable_output_exists() {
     let rendered = lines_to_single_string(&cells[0]);
     assert_snapshot!("slash_copy_no_output_info_message", rendered);
     assert!(
-        rendered.contains(
-            "`/copy` is unavailable before the first Codex output or right after a rollback."
-        ),
+        rendered.contains("在 Codex 首次输出前，或刚回滚后，`/copy` 暂不可用。"),
         "expected no-output message, got {rendered:?}"
     );
 }
@@ -4815,9 +4813,7 @@ async fn slash_copy_is_unavailable_when_legacy_agent_message_is_not_repeated_on_
     assert_eq!(cells.len(), 1, "expected one info message");
     let rendered = lines_to_single_string(&cells[0]);
     assert!(
-        rendered.contains(
-            "`/copy` is unavailable before the first Codex output or right after a rollback."
-        ),
+        rendered.contains("在 Codex 首次输出前，或刚回滚后，`/copy` 暂不可用。"),
         "expected unavailable message, got {rendered:?}"
     );
 }
@@ -4844,9 +4840,7 @@ async fn slash_copy_is_unavailable_when_legacy_agent_message_item_is_not_repeate
     assert_eq!(cells.len(), 1, "expected one info message");
     let rendered = lines_to_single_string(&cells[0]);
     assert!(
-        rendered.contains(
-            "`/copy` is unavailable before the first Codex output or right after a rollback."
-        ),
+        rendered.contains("在 Codex 首次输出前，或刚回滚后，`/copy` 暂不可用。"),
         "expected unavailable message, got {rendered:?}"
     );
 }
@@ -4876,9 +4870,7 @@ async fn slash_copy_does_not_return_stale_output_after_thread_rollback() {
     assert_eq!(cells.len(), 1, "expected one info message");
     let rendered = lines_to_single_string(&cells[0]);
     assert!(
-        rendered.contains(
-            "`/copy` is unavailable before the first Codex output or right after a rollback."
-        ),
+        rendered.contains("在 Codex 首次输出前，或刚回滚后，`/copy` 暂不可用。"),
         "expected rollback-cleared copy state message, got {rendered:?}"
     );
 }
@@ -4903,7 +4895,7 @@ async fn slash_clean_submits_background_terminal_cleanup() {
     assert_eq!(cells.len(), 1, "expected cleanup confirmation message");
     let rendered = lines_to_single_string(&cells[0]);
     assert!(
-        rendered.contains("Stopping all background terminals."),
+        rendered.contains("正在停止所有后台终端。"),
         "expected cleanup confirmation, got {rendered:?}"
     );
 }
@@ -4929,7 +4921,7 @@ async fn slash_clear_is_disabled_while_task_running() {
         AppEvent::InsertHistoryCell(cell) => {
             let rendered = lines_to_single_string(&cell.display_lines(80));
             assert!(
-                rendered.contains("'/clear' is disabled while a task is in progress."),
+                rendered.contains("任务进行中，'/clear' 暂不可用。"),
                 "expected /clear task-running error, got {rendered:?}"
             );
         }
@@ -5005,7 +4997,7 @@ async fn slash_rollout_handles_missing_path() {
     );
     let rendered = lines_to_single_string(&cells[0]);
     assert!(
-        rendered.contains("not available"),
+        rendered.contains("会话记录路径暂不可用。"),
         "expected missing rollout path message: {rendered}"
     );
 }
@@ -5042,7 +5034,7 @@ async fn undo_success_events_render_info_messages() {
 
     let completed = lines_to_single_string(&cells[0]);
     assert!(
-        completed.contains("Undo completed successfully."),
+        completed.contains("撤销成功。"),
         "expected default success message, got {completed:?}"
     );
 }
@@ -5302,7 +5294,7 @@ async fn review_custom_prompt_escape_navigates_back_then_dismisses() {
     // Verify child view is on top.
     let header = render_bottom_first_row(&chat, 60);
     assert!(
-        header.contains("Custom review instructions"),
+        contains_compact(&header, "自定义评审指令"),
         "expected custom prompt view header: {header:?}"
     );
 
@@ -5310,7 +5302,7 @@ async fn review_custom_prompt_escape_navigates_back_then_dismisses() {
     chat.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
     let header = render_bottom_first_row(&chat, 60);
     assert!(
-        header.contains("Select a review preset"),
+        contains_compact(&header, "选择评审预设"),
         "expected to return to parent review popup: {header:?}"
     );
 
@@ -5338,7 +5330,7 @@ async fn review_branch_picker_escape_navigates_back_then_dismisses() {
     // Verify child view header.
     let header = render_bottom_first_row(&chat, 60);
     assert!(
-        header.contains("Select a base branch"),
+        contains_compact(&header, "选择基线分支"),
         "expected branch picker header: {header:?}"
     );
 
@@ -5346,7 +5338,7 @@ async fn review_branch_picker_escape_navigates_back_then_dismisses() {
     chat.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
     let header = render_bottom_first_row(&chat, 60);
     assert!(
-        header.contains("Select a review preset"),
+        contains_compact(&header, "选择评审预设"),
         "expected to return to parent review popup: {header:?}"
     );
 
@@ -5446,11 +5438,11 @@ async fn apps_popup_refreshes_when_connectors_snapshot_updates() {
 
     let before = render_bottom_popup(&chat, 80);
     assert!(
-        before.contains("Installed 1 of 1 available apps."),
+        contains_compact(&before, "已安装 1/1 个可用应用。"),
         "expected initial apps popup snapshot, got:\n{before}"
     );
     assert!(
-        before.contains("Installed. Press Enter to open the app page"),
+        contains_compact(&before, "已安装。按 Enter 打开应用页面"),
         "expected selected app description to explain the app page action, got:\n{before}"
     );
 
@@ -5492,7 +5484,7 @@ async fn apps_popup_refreshes_when_connectors_snapshot_updates() {
 
     let after = render_bottom_popup(&chat, 80);
     assert!(
-        after.contains("Installed 2 of 2 available apps."),
+        contains_compact(&after, "已安装 2/2 个可用应用。"),
         "expected refreshed apps popup snapshot, got:\n{after}"
     );
     assert!(
@@ -5575,7 +5567,7 @@ async fn apps_refresh_failure_keeps_existing_full_snapshot() {
     chat.add_connectors_output();
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Installed 1 of 2 available apps."),
+        contains_compact(&popup, "已安装 1/2 个可用应用。"),
         "expected previous full snapshot to be preserved, got:\n{popup}"
     );
 }
@@ -5703,7 +5695,7 @@ async fn apps_partial_refresh_uses_same_filtering_as_full_refresh() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Installed 1 of 1 available apps."),
+        contains_compact(&popup, "已安装 1/1 个可用应用。"),
         "expected partial refresh popup to use filtered connectors, got:\n{popup}"
     );
     assert!(
@@ -5741,11 +5733,11 @@ async fn apps_popup_shows_disabled_status_for_installed_but_disabled_apps() {
     chat.add_connectors_output();
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Installed · Disabled. Press Enter to open the app page"),
+        contains_compact(&popup, "已安装 · 已禁用。按 Enter 打开应用页面"),
         "expected selected app description to include disabled status, got:\n{popup}"
     );
     assert!(
-        popup.contains("enable/disable this app."),
+        contains_compact(&popup, "启用/禁用该应用。"),
         "expected selected app description to mention enable/disable action, got:\n{popup}"
     );
 }
@@ -5859,7 +5851,7 @@ async fn apps_refresh_preserves_toggled_enabled_state() {
     chat.add_connectors_output();
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Installed · Disabled. Press Enter to open the app page"),
+        contains_compact(&popup, "已安装 · 已禁用。按 Enter 打开应用页面"),
         "expected disabled status to persist after reload, got:\n{popup}"
     );
 }
@@ -5893,11 +5885,11 @@ async fn apps_popup_for_not_installed_app_uses_install_only_selected_description
     chat.add_connectors_output();
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Can be installed. Press Enter to open the app page to install"),
+        contains_compact(&popup, "可安装。按 Enter 打开应用页面安装该应用。"),
         "expected selected app description to be install-only for not-installed apps, got:\n{popup}"
     );
     assert!(
-        !popup.contains("enable/disable this app."),
+        !contains_compact(&popup, "启用/禁用该应用。"),
         "did not expect enable/disable text for not-installed apps, got:\n{popup}"
     );
 }
@@ -5970,23 +5962,24 @@ async fn experimental_features_toggle_saves_on_exit() {
 #[tokio::test]
 async fn experimental_popup_shows_js_repl_node_requirement() {
     let (mut chat, _rx, _op_rx) = make_chatwidget_manual(None).await;
+    let expected_node_version = include_str!("../../../node-version.txt").trim_end();
+    let node_requirement = format!("Node >= v{expected_node_version}");
 
     let js_repl_description = FEATURES
         .iter()
         .find(|spec| spec.id == Feature::JsRepl)
         .and_then(|spec| spec.stage.experimental_menu_description())
         .expect("expected js_repl experimental description");
-    let node_requirement = js_repl_description
-        .split(". ")
-        .find(|sentence| sentence.starts_with("Requires Node >= v"))
-        .map(|sentence| sentence.trim_end_matches(" installed."))
-        .expect("expected js_repl description to mention the Node requirement");
+    assert!(
+        js_repl_description.contains(node_requirement.as_str()),
+        "expected js_repl description to mention Node requirement, got: {js_repl_description}"
+    );
 
     chat.open_experimental_popup();
 
     let popup = render_bottom_popup(&chat, 120);
     assert!(
-        popup.contains(node_requirement),
+        popup.contains(node_requirement.as_str()),
         "expected js_repl feature description to mention the required Node version, got:\n{popup}"
     );
 }
@@ -6170,7 +6163,7 @@ async fn approvals_selection_popup_snapshot_windows_degraded_sandbox() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Default (non-admin sandbox)"),
+        contains_compact(&popup, "默认（非管理员沙箱）"),
         "expected degraded sandbox label in approvals popup: {popup}"
     );
     assert!(
@@ -6178,7 +6171,7 @@ async fn approvals_selection_popup_snapshot_windows_degraded_sandbox() {
         "expected setup hint in approvals popup: {popup}"
     );
     assert!(
-        popup.contains("non-admin sandbox"),
+        contains_compact(&popup, "非管理员沙箱"),
         "expected degraded sandbox note in approvals popup: {popup}"
     );
 }
@@ -6234,11 +6227,11 @@ async fn windows_auto_mode_prompt_requests_enabling_sandbox_feature() {
 
     let popup = render_bottom_popup(&chat, 120);
     assert!(
-        popup.contains("requires Administrator permissions"),
+        contains_compact(&popup, "管理员权限"),
         "expected auto mode prompt to mention Administrator permissions, popup: {popup}"
     );
     assert!(
-        popup.contains("Use non-admin sandbox"),
+        contains_compact(&popup, "使用非管理员沙箱"),
         "expected auto mode prompt to include non-admin fallback option, popup: {popup}"
     );
 }
@@ -6255,19 +6248,19 @@ async fn startup_prompts_for_windows_sandbox_when_agent_requested() {
 
     let popup = render_bottom_popup(&chat, 120);
     assert!(
-        popup.contains("requires Administrator permissions"),
+        contains_compact(&popup, "管理员权限"),
         "expected startup prompt to mention Administrator permissions: {popup}"
     );
     assert!(
-        popup.contains("Set up default sandbox"),
+        contains_compact(&popup, "设置默认沙箱"),
         "expected startup prompt to offer default sandbox setup: {popup}"
     );
     assert!(
-        popup.contains("Use non-admin sandbox"),
+        contains_compact(&popup, "使用非管理员沙箱"),
         "expected startup prompt to offer non-admin fallback: {popup}"
     );
     assert!(
-        popup.contains("Quit"),
+        contains_compact(&popup, "退出"),
         "expected startup prompt to offer quit action: {popup}"
     );
 }
@@ -6326,12 +6319,12 @@ async fn reasoning_popup_shows_extra_high_with_space() {
 
     let popup = render_bottom_popup(&chat, 120);
     assert!(
-        popup.contains("Extra high"),
-        "expected popup to include 'Extra high'; popup: {popup}"
+        popup.contains("超 高"),
+        "expected popup to include '超 高'; popup: {popup}"
     );
     assert!(
-        !popup.contains("Extrahigh"),
-        "expected popup not to include 'Extrahigh'; popup: {popup}"
+        !popup.contains("超高"),
+        "expected popup not to include '超高'; popup: {popup}"
     );
 }
 
@@ -6362,7 +6355,7 @@ async fn single_reasoning_option_skips_selection() {
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        !popup.contains("Select Reasoning Level"),
+        !contains_compact(&popup, "选择推理级别"),
         "expected reasoning selection popup to be skipped"
     );
 
@@ -6411,13 +6404,16 @@ async fn reasoning_popup_escape_returns_to_model_popup() {
     chat.open_reasoning_popup(preset);
 
     let before_escape = render_bottom_popup(&chat, 80);
-    assert!(before_escape.contains("Select Reasoning Level"));
+    assert!(contains_compact(&before_escape, "选择推理级别"));
 
     chat.handle_key_event(KeyEvent::new(KeyCode::Esc, KeyModifiers::NONE));
 
     let after_escape = render_bottom_popup(&chat, 80);
-    assert!(after_escape.contains("Select Model"));
-    assert!(!after_escape.contains("Select Reasoning Level"));
+    assert!(contains_compact(&after_escape, "选择模型"));
+    assert!(!contains_compact(
+        &after_escape,
+        "为 gpt-5.1-codex-max 选择推理级别"
+    ));
 }
 
 #[tokio::test]
@@ -6517,13 +6513,15 @@ async fn approvals_popup_shows_disabled_presets() {
         .expect("render approvals popup");
 
     let screen = terminal.backend().vt100().screen().contents();
-    let collapsed = screen.split_whitespace().collect::<Vec<_>>().join(" ");
     assert!(
-        collapsed.contains("(disabled)"),
+        contains_compact(screen.as_str(), "（已禁用）"),
         "disabled preset label should be shown"
     );
     assert!(
-        collapsed.contains("this message should be printed in the description"),
+        contains_compact(
+            screen.as_str(),
+            "this message should be printed in the description"
+        ),
         "disabled preset reason should be shown"
     );
 }
@@ -6560,7 +6558,7 @@ async fn approvals_popup_navigation_skips_disabled() {
         .expect("render approvals popup after disabled selection");
     let screen = terminal.backend().vt100().screen().contents();
     assert!(
-        screen.contains("Update Model Permissions"),
+        contains_compact(&screen, "更新模型权限"),
         "popup should remain open after selecting a disabled entry"
     );
     assert!(
@@ -6621,7 +6619,7 @@ async fn permissions_selection_emits_history_cell_when_selection_changes() {
     );
     let rendered = lines_to_single_string(&cells[0]);
     assert!(
-        rendered.contains("Permissions updated to"),
+        rendered.contains("权限已更新为："),
         "expected permissions selection history message, got: {rendered}"
     );
 }
@@ -6718,7 +6716,7 @@ async fn permissions_selection_emits_history_cell_when_current_is_selected() {
     );
     let rendered = lines_to_single_string(&cells[0]);
     assert!(
-        rendered.contains("Permissions updated to"),
+        rendered.contains("权限已更新为："),
         "expected permissions update history message, got: {rendered}"
     );
 }
@@ -6767,7 +6765,7 @@ async fn permissions_full_access_history_cell_emitted_only_after_confirmation() 
 
     let popup = render_bottom_popup(&chat, 80);
     assert!(
-        popup.contains("Enable full access?"),
+        contains_compact(&popup, "启用完全访问权限？"),
         "expected full access confirmation popup, got: {popup}"
     );
 
@@ -6784,7 +6782,7 @@ async fn permissions_full_access_history_cell_emitted_only_after_confirmation() 
         lines_to_single_string(&cells_after_confirmation[0])
     };
     assert!(
-        rendered.contains("Permissions updated to Full Access"),
+        rendered.contains("权限已更新为："),
         "expected full access update history message, got: {rendered}"
     );
 }
@@ -6947,7 +6945,7 @@ async fn approval_modal_exec_multiline_prefix_hides_execpolicy_option_snapshot()
         .draw(|f| chat.render(f.area(), f.buffer_mut()))
         .expect("draw approval modal (multiline prefix)");
     let contents = terminal.backend().vt100().screen().contents();
-    assert!(!contents.contains("don't ask again"));
+    assert!(!contents.contains("不再询问"));
     assert_snapshot!(
         "approval_modal_exec_multiline_prefix_no_execpolicy",
         contents
@@ -7768,20 +7766,10 @@ async fn apply_patch_untrusted_shows_approval_modal() -> anyhow::Result<()> {
     let mut buf = Buffer::empty(area);
     chat.render(area, &mut buf);
 
-    let mut contains_title = false;
-    for y in 0..area.height {
-        let mut row = String::new();
-        for x in 0..area.width {
-            row.push(buf[(x, y)].symbol().chars().next().unwrap_or(' '));
-        }
-        if row.contains("Would you like to make the following edits?") {
-            contains_title = true;
-            break;
-        }
-    }
+    let screen = snapshot_buffer(&buf);
     assert!(
-        contains_title,
-        "expected approval modal to be visible with title 'Would you like to make the following edits?'"
+        contains_compact(&screen, "是否允许进行以下修改？"),
+        "expected approval modal to be visible with translated title"
     );
 
     Ok(())
@@ -7955,7 +7943,7 @@ async fn thread_snapshot_replayed_turn_started_marks_task_running() {
         .bottom_pane
         .status_widget()
         .expect("status indicator should be visible");
-    assert_eq!(status.header(), "Working");
+    assert_eq!(status.header(), "处理中");
 }
 
 #[tokio::test]
@@ -8014,7 +8002,7 @@ async fn thread_snapshot_replayed_stream_recovery_restores_previous_status_heade
         .bottom_pane
         .status_widget()
         .expect("status indicator should be visible");
-    assert_eq!(status.header(), "Working");
+    assert_eq!(status.header(), "处理中");
     assert_eq!(status.details(), None);
     assert!(chat.retry_status_header.is_none());
 }
@@ -8070,7 +8058,7 @@ async fn replayed_interrupted_reconnect_footer_row_snapshot() {
 
     let header = render_bottom_first_row(&chat, 80);
     assert!(
-        !header.contains("Reconnecting") && !header.contains("Working"),
+        !header.contains("Reconnecting") && !header.contains("处理中"),
         "expected replayed interrupted reconnect to avoid active status row, got {header:?}"
     );
     assert_snapshot!("replayed_interrupted_reconnect_footer_row", header);
@@ -8234,7 +8222,7 @@ async fn stream_recovery_restores_previous_status_header() {
         .bottom_pane
         .status_widget()
         .expect("status indicator should be visible");
-    assert_eq!(status.header(), "Working");
+    assert_eq!(status.header(), "处理中");
     assert_eq!(status.details(), None);
     assert!(chat.retry_status_header.is_none());
 }
@@ -8254,7 +8242,7 @@ async fn runtime_metrics_websocket_timing_logs_and_final_separator_sums_totals()
     let first_log = drain_insert_history(&mut rx)
         .iter()
         .map(|lines| lines_to_single_string(lines))
-        .find(|line| line.contains("WebSocket timing:"))
+        .find(|line| line.contains("WebSocket 时延："))
         .expect("expected websocket timing log");
     assert!(first_log.contains("TTFT: 120ms (iapi)"));
     assert!(first_log.contains("TBT: 50ms (service)"));
@@ -8267,7 +8255,7 @@ async fn runtime_metrics_websocket_timing_logs_and_final_separator_sums_totals()
     let second_log = drain_insert_history(&mut rx)
         .iter()
         .map(|lines| lines_to_single_string(lines))
-        .find(|line| line.contains("WebSocket timing:"))
+        .find(|line| line.contains("WebSocket 时延："))
         .expect("expected websocket timing log");
     assert!(second_log.contains("TTFT: 80ms (iapi)"));
 

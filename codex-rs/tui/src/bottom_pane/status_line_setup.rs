@@ -94,36 +94,45 @@ pub(crate) enum StatusLineItem {
 }
 
 impl StatusLineItem {
+    /// User-visible label shown in the picker list.
+    pub(crate) fn label(&self) -> &'static str {
+        match self {
+            StatusLineItem::ModelName => "模型名称",
+            StatusLineItem::ModelWithReasoning => "模型（含推理级别）",
+            StatusLineItem::CurrentDir => "当前目录",
+            StatusLineItem::ProjectRoot => "项目根目录",
+            StatusLineItem::GitBranch => "Git 分支",
+            StatusLineItem::ContextRemaining => "上下文剩余",
+            StatusLineItem::ContextUsed => "上下文已用",
+            StatusLineItem::FiveHourLimit => "5 小时额度",
+            StatusLineItem::WeeklyLimit => "每周额度",
+            StatusLineItem::CodexVersion => "Codex 版本",
+            StatusLineItem::ContextWindowSize => "上下文窗口大小",
+            StatusLineItem::UsedTokens => "会话已用 token",
+            StatusLineItem::TotalInputTokens => "输入 token",
+            StatusLineItem::TotalOutputTokens => "输出 token",
+            StatusLineItem::SessionId => "会话 ID",
+        }
+    }
+
     /// User-visible description shown in the popup.
     pub(crate) fn description(&self) -> &'static str {
         match self {
-            StatusLineItem::ModelName => "Current model name",
-            StatusLineItem::ModelWithReasoning => "Current model name with reasoning level",
-            StatusLineItem::CurrentDir => "Current working directory",
-            StatusLineItem::ProjectRoot => "Project root directory (omitted when unavailable)",
-            StatusLineItem::GitBranch => "Current Git branch (omitted when unavailable)",
-            StatusLineItem::ContextRemaining => {
-                "Percentage of context window remaining (omitted when unknown)"
-            }
-            StatusLineItem::ContextUsed => {
-                "Percentage of context window used (omitted when unknown)"
-            }
-            StatusLineItem::FiveHourLimit => {
-                "Remaining usage on 5-hour usage limit (omitted when unavailable)"
-            }
-            StatusLineItem::WeeklyLimit => {
-                "Remaining usage on weekly usage limit (omitted when unavailable)"
-            }
-            StatusLineItem::CodexVersion => "Codex application version",
-            StatusLineItem::ContextWindowSize => {
-                "Total context window size in tokens (omitted when unknown)"
-            }
-            StatusLineItem::UsedTokens => "Total tokens used in session (omitted when zero)",
-            StatusLineItem::TotalInputTokens => "Total input tokens used in session",
-            StatusLineItem::TotalOutputTokens => "Total output tokens used in session",
-            StatusLineItem::SessionId => {
-                "Current session identifier (omitted until session starts)"
-            }
+            StatusLineItem::ModelName => "当前模型名称",
+            StatusLineItem::ModelWithReasoning => "当前模型名称（含推理级别）",
+            StatusLineItem::CurrentDir => "当前工作目录",
+            StatusLineItem::ProjectRoot => "项目根目录（不可用时省略）",
+            StatusLineItem::GitBranch => "当前 Git 分支（不可用时省略）",
+            StatusLineItem::ContextRemaining => "上下文窗口剩余百分比（未知时省略）",
+            StatusLineItem::ContextUsed => "上下文窗口已用百分比（未知时省略）",
+            StatusLineItem::FiveHourLimit => "5 小时额度剩余百分比（不可用时省略）",
+            StatusLineItem::WeeklyLimit => "每周额度剩余百分比（不可用时省略）",
+            StatusLineItem::CodexVersion => "Codex 应用版本",
+            StatusLineItem::ContextWindowSize => "上下文窗口总大小（token，未知时省略）",
+            StatusLineItem::UsedTokens => "会话已用 token 总数（为 0 时省略）",
+            StatusLineItem::TotalInputTokens => "会话输入 token 总数",
+            StatusLineItem::TotalOutputTokens => "会话输出 token 总数",
+            StatusLineItem::SessionId => "当前会话 ID（会话开始后显示）",
         }
     }
 
@@ -134,19 +143,19 @@ impl StatusLineItem {
     pub(crate) fn render(&self) -> &'static str {
         match self {
             StatusLineItem::ModelName => "gpt-5.2-codex",
-            StatusLineItem::ModelWithReasoning => "gpt-5.2-codex medium",
+            StatusLineItem::ModelWithReasoning => "gpt-5.2-codex 中推理",
             StatusLineItem::CurrentDir => "~/project/path",
             StatusLineItem::ProjectRoot => "~/project",
             StatusLineItem::GitBranch => "feat/awesome-feature",
-            StatusLineItem::ContextRemaining => "18% left",
-            StatusLineItem::ContextUsed => "82% used",
+            StatusLineItem::ContextRemaining => "剩余 18%",
+            StatusLineItem::ContextUsed => "已用 82%",
             StatusLineItem::FiveHourLimit => "5h 100%",
-            StatusLineItem::WeeklyLimit => "weekly 98%",
+            StatusLineItem::WeeklyLimit => "每周 98%",
             StatusLineItem::CodexVersion => "v0.93.0",
-            StatusLineItem::ContextWindowSize => "258K window",
-            StatusLineItem::UsedTokens => "27.3K used",
-            StatusLineItem::TotalInputTokens => "17,588 in",
-            StatusLineItem::TotalOutputTokens => "265 out",
+            StatusLineItem::ContextWindowSize => "窗口 258K",
+            StatusLineItem::UsedTokens => "已用 27.3K",
+            StatusLineItem::TotalInputTokens => "输入 17,588",
+            StatusLineItem::TotalOutputTokens => "输出 265",
             StatusLineItem::SessionId => "019c19bd-ceb6-73b0-adc8-8ec0397b85cf",
         }
     }
@@ -202,13 +211,12 @@ impl StatusLineSetupView {
 
         Self {
             picker: MultiSelectPicker::builder(
-                "Configure Status Line".to_string(),
-                Some("Select which items to display in the status line.".to_string()),
+                "配置状态栏".to_string(),
+                Some("选择要在状态栏中显示的项目。".to_string()),
                 app_event_tx,
             )
             .instructions(vec![
-                "Use ↑↓ to navigate, ←→ to move, space to select, enter to confirm, esc to cancel."
-                    .into(),
+                "使用 ↑↓ 导航，←→ 调整顺序，空格选择，Enter 确认，Esc 取消。".into(),
             ])
             .items(items)
             .enable_ordering()
@@ -245,7 +253,7 @@ impl StatusLineSetupView {
     fn status_line_select_item(item: StatusLineItem, enabled: bool) -> MultiSelectItem {
         MultiSelectItem {
             id: item.to_string(),
-            name: item.to_string(),
+            name: item.label().to_string(),
             description: Some(item.description().to_string()),
             enabled,
         }

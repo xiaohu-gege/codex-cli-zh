@@ -65,7 +65,7 @@ impl QueuedUserMessages {
             Line::from(vec![
                 "    ".into(),
                 self.edit_binding.into(),
-                " edit".into(),
+                " 编辑".into(),
             ])
             .dim(),
         );

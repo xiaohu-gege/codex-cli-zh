@@ -2,17 +2,13 @@
 source: tui/src/chatwidget/tests.rs
 expression: popup
 ---
-  Select Microphone
-  Saved devices apply to realtime voice only.
+  选 择 麦 克 风
+  已 保 存 设 备 仅 应 用 于 实 时 语 音 。
 
-  1. System default                                Use your operating system
-                                                   default device.
-› 2. Unavailable: Studio Mic (current) (disabled)  Configured device is not
-                                                   currently available.
-                                                   (disabled: Reconnect the
-                                                   device or choose another
-                                                   one.)
+  1. 系 统 默 认                               使 用 操 作 系 统 默 认 设 备 。
+› 2. 不 可 用 ： Studio Mic（ 当 前 ） （ 已 禁 用 ）   当 前 配 置 的 设 备 暂 不 可 用 。 （ 已 禁 用 ：
+                                           请 重 新 连 接 设 备 或 选 择 其 他 设 备 。 ）
   3. Built-in Mic
   4. USB Mic
 
-  Press enter to confirm or esc to go back
+  按  enter 确 认 ， 或 按  esc 返 回

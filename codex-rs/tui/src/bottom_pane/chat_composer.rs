@@ -231,9 +231,7 @@ use tokio::runtime::Handle;
 const LARGE_PASTE_CHAR_THRESHOLD: usize = 1000;
 
 fn user_input_too_large_message(actual_chars: usize) -> String {
-    format!(
-        "Message exceeds the maximum length of {MAX_USER_INPUT_TEXT_CHARS} characters ({actual_chars} provided)."
-    )
+    format!("消息超过最大长度 {MAX_USER_INPUT_TEXT_CHARS} 个字符（当前 {actual_chars} 个）。")
 }
 
 /// Result returned when the user interacts with the text area.
@@ -2277,9 +2275,8 @@ impl ChatComposer {
                     })
                     .unwrap_or(false);
                 if !is_builtin && !is_known_prompt {
-                    let message = format!(
-                        r#"Unrecognized command '/{name}'. Type "/" for a list of supported commands."#
-                    );
+                    let message =
+                        format!("无法识别命令 '/{name}'。输入 \"/\" 可查看受支持命令列表。");
                     self.app_event_tx.send(AppEvent::InsertHistoryCell(Box::new(
                         history_cell::new_info_event(message, None),
                     )));
@@ -2564,10 +2561,7 @@ impl ChatComposer {
         if !self.is_task_running || cmd.available_during_task() {
             return false;
         }
-        let message = format!(
-            "'/{}' is disabled while a task is in progress.",
-            cmd.command()
-        );
+        let message = format!("'/{}' 在任务进行中不可用。", cmd.command());
         self.app_event_tx.send(AppEvent::InsertHistoryCell(Box::new(
             history_cell::new_error_event(message),
         )));
@@ -4342,7 +4336,7 @@ impl ChatComposer {
             } else {
                 self.input_disabled_placeholder
                     .as_deref()
-                    .unwrap_or("Input disabled.")
+                    .unwrap_or("输入已禁用。")
                     .to_string()
             };
             if !textarea_rect.is_empty() {
@@ -4467,7 +4461,8 @@ mod tests {
         let mut hint_row: Option<(u16, String)> = None;
         for y in 0..area.height {
             let row = row_to_string(y);
-            if row.contains("? for shortcuts") {
+            let compact_row: String = row.chars().filter(|c| !c.is_whitespace()).collect();
+            if compact_row.contains("?forshortcuts") || compact_row.contains("?快捷键") {
                 hint_row = Some((y, row));
                 break;
             }
@@ -6420,7 +6415,7 @@ mod tests {
                     .map(|line| line.to_string())
                     .collect::<Vec<_>>()
                     .join("\n");
-                assert!(message.contains("disabled while a task is in progress"));
+                assert!(message.contains("在任务进行中不可用"));
                 found_error = true;
                 break;
             }
@@ -8458,7 +8453,7 @@ mod tests {
                     .map(|line| line.to_string())
                     .collect::<Vec<_>>()
                     .join("\n");
-                assert!(message.contains("expected key=value"));
+                assert!(message.contains("应为 key=value 格式"));
                 found_error = true;
                 break;
             }
@@ -8506,7 +8501,7 @@ mod tests {
                     .map(|line| line.to_string())
                     .collect::<Vec<_>>()
                     .join("\n");
-                assert!(message.to_lowercase().contains("missing required args"));
+                assert!(message.contains("缺少必填参数"));
                 assert!(message.contains("BRANCH"));
                 found_error = true;
                 break;

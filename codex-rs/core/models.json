@@ -19,24 +19,24 @@
       "reasoning_summary_format": "experimental",
       "slug": "gpt-5.3-codex",
       "display_name": "gpt-5.3-codex",
-      "description": "Latest frontier agentic coding model.",
+      "description": "最新前沿智能体编程模型。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Fast responses with lighter reasoning"
+          "description": "响应更快，推理强度较低"
         },
         {
           "effort": "medium",
-          "description": "Balances speed and reasoning depth for everyday tasks"
+          "description": "在日常任务中平衡速度与推理深度"
         },
         {
           "effort": "high",
-          "description": "Greater reasoning depth for complex problems"
+          "description": "在复杂问题上提供更深层推理"
         },
         {
           "effort": "xhigh",
-          "description": "Extra high reasoning depth for complex problems"
+          "description": "在复杂问题上提供超高推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -87,24 +87,24 @@
       "reasoning_summary_format": "experimental",
       "slug": "gpt-5.2-codex",
       "display_name": "gpt-5.2-codex",
-      "description": "Frontier agentic coding model.",
+      "description": "前沿智能体编程模型。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Fast responses with lighter reasoning"
+          "description": "响应更快，推理强度较低"
         },
         {
           "effort": "medium",
-          "description": "Balances speed and reasoning depth for everyday tasks"
+          "description": "在日常任务中平衡速度与推理深度"
         },
         {
           "effort": "high",
-          "description": "Greater reasoning depth for complex problems"
+          "description": "在复杂问题上提供更深层推理"
         },
         {
           "effort": "xhigh",
-          "description": "Extra high reasoning depth for complex problems"
+          "description": "在复杂问题上提供超高推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -159,24 +159,24 @@
       "reasoning_summary_format": "experimental",
       "slug": "gpt-5.1-codex-max",
       "display_name": "gpt-5.1-codex-max",
-      "description": "Codex-optimized flagship for deep and fast reasoning.",
+      "description": "为 Codex 优化的旗舰模型，兼顾深度与速度。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Fast responses with lighter reasoning"
+          "description": "响应更快，推理强度较低"
         },
         {
           "effort": "medium",
-          "description": "Balances speed and reasoning depth for everyday tasks"
+          "description": "在日常任务中平衡速度与推理深度"
         },
         {
           "effort": "high",
-          "description": "Greater reasoning depth for complex problems"
+          "description": "在复杂问题上提供更深层推理"
         },
         {
           "effort": "xhigh",
-          "description": "Extra high reasoning depth for complex problems"
+          "description": "在复杂问题上提供超高推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -224,20 +224,20 @@
       "reasoning_summary_format": "experimental",
       "slug": "gpt-5.1-codex",
       "display_name": "gpt-5.1-codex",
-      "description": "Optimized for codex.",
+      "description": "针对 Codex 优化。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Fastest responses with limited reasoning"
+          "description": "最快响应，推理受限"
         },
         {
           "effort": "medium",
-          "description": "Dynamically adjusts reasoning based on the task"
+          "description": "根据任务动态调整推理强度"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -285,24 +285,24 @@
       "reasoning_summary_format": "none",
       "slug": "gpt-5.2",
       "display_name": "gpt-5.2",
-      "description": "Latest frontier model with improvements across knowledge, reasoning and coding",
+      "description": "最新前沿模型，在知识、推理与编码能力上均有提升",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Balances speed with some reasoning; useful for straightforward queries and short explanations"
+          "description": "在速度与一定推理之间平衡；适合直接问题和简短说明"
         },
         {
           "effort": "medium",
-          "description": "Provides a solid balance of reasoning depth and latency for general-purpose tasks"
+          "description": "在通用任务中平衡推理深度与响应延迟"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         },
         {
           "effort": "xhigh",
-          "description": "Extra high reasoning for complex problems"
+          "description": "针对复杂问题提供超高推理"
         }
       ],
       "shell_type": "shell_command",
@@ -350,20 +350,20 @@
       "reasoning_summary_format": "none",
       "slug": "gpt-5.1",
       "display_name": "gpt-5.1",
-      "description": "Broad world knowledge with strong general reasoning.",
+      "description": "具备广泛世界知识与较强通用推理能力。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Balances speed with some reasoning; useful for straightforward queries and short explanations"
+          "description": "在速度与一定推理之间平衡；适合直接问题和简短说明"
         },
         {
           "effort": "medium",
-          "description": "Provides a solid balance of reasoning depth and latency for general-purpose tasks"
+          "description": "在通用任务中平衡推理深度与响应延迟"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -411,20 +411,20 @@
       "reasoning_summary_format": "experimental",
       "slug": "gpt-5-codex",
       "display_name": "gpt-5-codex",
-      "description": "Optimized for codex.",
+      "description": "针对 Codex 优化。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Fastest responses with limited reasoning"
+          "description": "最快响应，推理受限"
         },
         {
           "effort": "medium",
-          "description": "Dynamically adjusts reasoning based on the task"
+          "description": "根据任务动态调整推理强度"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -472,24 +472,24 @@
       "reasoning_summary_format": "none",
       "slug": "gpt-5",
       "display_name": "gpt-5",
-      "description": "Broad world knowledge with strong general reasoning.",
+      "description": "具备广泛世界知识与较强通用推理能力。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "minimal",
-          "description": "Fastest responses with little reasoning"
+          "description": "最快响应，推理较少"
         },
         {
           "effort": "low",
-          "description": "Balances speed with some reasoning; useful for straightforward queries and short explanations"
+          "description": "在速度与一定推理之间平衡；适合直接问题和简短说明"
         },
         {
           "effort": "medium",
-          "description": "Provides a solid balance of reasoning depth and latency for general-purpose tasks"
+          "description": "在通用任务中平衡推理深度与响应延迟"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "default",
@@ -536,20 +536,20 @@
       "reasoning_summary_format": "none",
       "slug": "gpt-oss-120b",
       "display_name": "gpt-oss-120b",
-      "description": "OpenAI OSS model, 120B parameters.",
+      "description": "OpenAI 开源模型，120B 参数。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Balances speed with some reasoning; useful for straightforward queries and short explanations"
+          "description": "在速度与一定推理之间平衡；适合直接问题和简短说明"
         },
         {
           "effort": "medium",
-          "description": "Provides a solid balance of reasoning depth and latency for general-purpose tasks"
+          "description": "在通用任务中平衡推理深度与响应延迟"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "default",
@@ -593,20 +593,20 @@
       "reasoning_summary_format": "none",
       "slug": "gpt-oss-20b",
       "display_name": "gpt-oss-20b",
-      "description": "OpenAI OSS model, 20B parameters.",
+      "description": "OpenAI 开源模型，20B 参数。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "Balances speed with some reasoning; useful for straightforward queries and short explanations"
+          "description": "在速度与一定推理之间平衡；适合直接问题和简短说明"
         },
         {
           "effort": "medium",
-          "description": "Provides a solid balance of reasoning depth and latency for general-purpose tasks"
+          "description": "在通用任务中平衡推理深度与响应延迟"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "default",
@@ -651,16 +651,16 @@
       "reasoning_summary_format": "experimental",
       "slug": "gpt-5.1-codex-mini",
       "display_name": "gpt-5.1-codex-mini",
-      "description": "Optimized for codex. Cheaper, faster, but less capable.",
+      "description": "针对 Codex 优化。成本更低、速度更快，但能力较弱。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "medium",
-          "description": "Dynamically adjusts reasoning based on the task"
+          "description": "根据任务动态调整推理强度"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -708,16 +708,16 @@
       "reasoning_summary_format": "experimental",
       "slug": "gpt-5-codex-mini",
       "display_name": "gpt-5-codex-mini",
-      "description": "Optimized for codex. Cheaper, faster, but less capable.",
+      "description": "针对 Codex 优化。成本更低、速度更快，但能力较弱。",
       "default_reasoning_level": "medium",
       "supported_reasoning_levels": [
         {
           "effort": "medium",
-          "description": "Dynamically adjusts reasoning based on the task"
+          "description": "根据任务动态调整推理强度"
         },
         {
           "effort": "high",
-          "description": "Maximizes reasoning depth for complex or ambiguous problems"
+          "description": "在复杂或含糊问题上最大化推理深度"
         }
       ],
       "shell_type": "shell_command",
@@ -748,3 +748,5 @@
     }
   ]
 }
+
+

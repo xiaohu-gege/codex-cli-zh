@@ -465,8 +465,8 @@ pub const FEATURES: &[FeatureSpec] = &[
         key: "js_repl",
         stage: Stage::Experimental {
             name: "JavaScript REPL",
-            menu_description: "Enable a persistent Node-backed JavaScript REPL for interactive website debugging and other inline JavaScript execution capabilities. Requires Node >= v22.22.0 installed.",
-            announcement: "NEW: JavaScript REPL is now available in /experimental. Enable it, then start a new chat or restart Codex to use it.",
+            menu_description: "启用持久化的 Node 驱动 JavaScript REPL，可用于交互式网页调试和内联 JavaScript 执行。需要安装 Node >= v22.22.0。",
+            announcement: "新功能：/experimental 已支持 JavaScript REPL。启用后，请新开会话或重启 Codex 生效。",
         },
         default_enabled: false,
     },
@@ -542,9 +542,9 @@ pub const FEATURES: &[FeatureSpec] = &[
         key: "use_linux_sandbox_bwrap",
         #[cfg(target_os = "linux")]
         stage: Stage::Experimental {
-            name: "Bubblewrap sandbox",
-            menu_description: "Try the new linux sandbox based on bubblewrap.",
-            announcement: "NEW: Linux bubblewrap sandbox offers stronger filesystem and network controls than Landlock alone, including keeping .git and .codex read-only inside writable workspaces. Enable it in /experimental and restart Codex to try it.",
+            name: "Bubblewrap 沙箱",
+            menu_description: "尝试基于 bubblewrap 的新 Linux 沙箱。",
+            announcement: "新功能：Linux bubblewrap 沙箱提供比仅使用 Landlock 更强的文件系统与网络控制（包括在可写工作区内将 .git 和 .codex 保持只读）。请在 /experimental 中启用并重启 Codex 体验。",
         },
         #[cfg(not(target_os = "linux"))]
         stage: Stage::UnderDevelopment,
@@ -596,9 +596,9 @@ pub const FEATURES: &[FeatureSpec] = &[
         id: Feature::Collab,
         key: "multi_agent",
         stage: Stage::Experimental {
-            name: "Multi-agents",
-            menu_description: "Ask Codex to spawn multiple agents to parallelize the work and win in efficiency.",
-            announcement: "NEW: Multi-agents can now be spawned by Codex. Enable in /experimental and restart Codex!",
+            name: "多智能体",
+            menu_description: "让 Codex 启动多个智能体并行处理任务，提高效率。",
+            announcement: "新功能：Codex 现已支持多智能体。请在 /experimental 中启用并重启 Codex！",
         },
         default_enabled: false,
     },
@@ -606,9 +606,9 @@ pub const FEATURES: &[FeatureSpec] = &[
         id: Feature::Apps,
         key: "apps",
         stage: Stage::Experimental {
-            name: "Apps",
-            menu_description: "Use a connected ChatGPT App using \"$\". Install Apps via /apps command. Restart Codex after enabling.",
-            announcement: "NEW: Use ChatGPT Apps (Connectors) in Codex via $ mentions. Enable in /experimental and restart Codex!",
+            name: "应用",
+            menu_description: "通过 \"$\" 使用已连接的 ChatGPT 应用。可通过 /apps 安装应用。启用后请重启 Codex。",
+            announcement: "新功能：可在 Codex 中通过 $ 提及使用 ChatGPT 应用（连接器）。请在 /experimental 中启用并重启 Codex！",
         },
         default_enabled: false,
     },
@@ -681,9 +681,9 @@ pub const FEATURES: &[FeatureSpec] = &[
             target_os = "windows"
         )) {
             Stage::Experimental {
-                name: "Prevent sleep while running",
-                menu_description: "Keep your computer awake while Codex is running a thread.",
-                announcement: "NEW: Prevent sleep while running is now available in /experimental.",
+                name: "运行时防休眠",
+                menu_description: "在 Codex 运行任务期间保持电脑不进入休眠。",
+                announcement: "新功能：/experimental 已提供“运行时防休眠”。",
             }
         } else {
             Stage::UnderDevelopment
@@ -819,7 +819,7 @@ mod tests {
         assert_eq!(
             stage.experimental_menu_description().map(str::to_owned),
             Some(format!(
-                "Enable a persistent Node-backed JavaScript REPL for interactive website debugging and other inline JavaScript execution capabilities. Requires Node >= v{expected_node_version} installed."
+                "启用持久化的 Node 驱动 JavaScript REPL，可用于交互式网页调试和内联 JavaScript 执行。需要安装 Node >= v{expected_node_version}。"
             ))
         );
         assert_eq!(Feature::JsRepl.default_enabled(), false);

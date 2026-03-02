@@ -85,9 +85,9 @@ impl WidgetRef for &WelcomeWidget {
         }
         lines.push(Line::from(vec![
             "  ".into(),
-            "Welcome to ".into(),
+            "欢迎使用 ".into(),
             "Codex".bold(),
-            ", OpenAI's command-line coding agent".into(),
+            "，OpenAI 的命令行编程助手".into(),
         ]));
 
         Paragraph::new(lines)
@@ -117,12 +117,20 @@ mod tests {
     static VARIANTS: [&[&str]; 2] = [&VARIANT_A, &VARIANT_B];
 
     fn row_containing(buf: &Buffer, needle: &str) -> Option<u16> {
+        let needle_compact = needle
+            .chars()
+            .filter(|ch| !ch.is_whitespace())
+            .collect::<String>();
         (0..buf.area.height).find(|&y| {
             let mut row = String::new();
             for x in 0..buf.area.width {
                 row.push_str(buf[(x, y)].symbol());
             }
-            row.contains(needle)
+            let row_compact = row
+                .chars()
+                .filter(|ch| !ch.is_whitespace())
+                .collect::<String>();
+            row_compact.contains(&needle_compact)
         })
     }
 
@@ -134,7 +142,7 @@ mod tests {
         let frame_lines = widget.animation.current_frame().lines().count() as u16;
         (&widget).render(area, &mut buf);
 
-        let welcome_row = row_containing(&buf, "Welcome");
+        let welcome_row = row_containing(&buf, "欢迎使用");
         assert_eq!(welcome_row, Some(frame_lines + 1));
     }
 
@@ -145,7 +153,7 @@ mod tests {
         let mut buf = Buffer::empty(area);
         (&widget).render(area, &mut buf);
 
-        let welcome_row = row_containing(&buf, "Welcome");
+        let welcome_row = row_containing(&buf, "欢迎使用");
         assert_eq!(welcome_row, Some(0));
     }
 

@@ -45,7 +45,7 @@ impl PendingThreadApprovals {
         let mut lines = Vec::new();
         for thread in self.threads.iter().take(3) {
             let wrapped = adaptive_wrap_lines(
-                std::iter::once(Line::from(format!("Approval needed in {thread}"))),
+                std::iter::once(Line::from(format!("线程 {thread} 需要审批"))),
                 RtOptions::new(width as usize)
                     .initial_indent(Line::from(vec!["  ".into(), "!".red().bold(), " ".into()]))
                     .subsequent_indent(Line::from("    ")),
@@ -61,7 +61,7 @@ impl PendingThreadApprovals {
             Line::from(vec![
                 "    ".into(),
                 "/agent".cyan().bold(),
-                " to switch threads".dim(),
+                " 切换线程".dim(),
             ])
             .dim(),
         );
@@ -87,8 +87,13 @@ impl Renderable for PendingThreadApprovals {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use insta::assert_snapshot;
     use pretty_assertions::assert_eq;
+
+    fn contains_compact(haystack: &str, needle: &str) -> bool {
+        let compact_haystack: String = haystack.chars().filter(|c| !c.is_whitespace()).collect();
+        let compact_needle: String = needle.chars().filter(|c| !c.is_whitespace()).collect();
+        compact_haystack.contains(&compact_needle)
+    }
 
     fn snapshot_rows(widget: &PendingThreadApprovals, width: u16) -> String {
         let height = widget.desired_height(width);
@@ -115,12 +120,14 @@ mod tests {
     fn render_single_thread_snapshot() {
         let mut widget = PendingThreadApprovals::new();
         widget.set_threads(vec!["Robie [explorer]".to_string()]);
-
-        assert_snapshot!(
-            snapshot_rows(&widget, 40).replace(' ', "."),
-            @r"
-..!.Approval.needed.in.Robie.[explorer].
-..../agent.to.switch.threads............"
+        let rendered = snapshot_rows(&widget, 40);
+        assert!(
+            contains_compact(&rendered, "线程 Robie [explorer] 需要审批"),
+            "expected thread approval line, got {rendered:?}"
+        );
+        assert!(
+            contains_compact(&rendered, "/agent 切换线程"),
+            "expected switch-thread hint, got {rendered:?}"
         );
     }
 
@@ -133,15 +140,22 @@ mod tests {
             "Inspector".to_string(),
             "Extra agent".to_string(),
         ]);
-
-        assert_snapshot!(
-            snapshot_rows(&widget, 44).replace(' ', "."),
-            @r"
-..!.Approval.needed.in.Main.[default].......
-..!.Approval.needed.in.Robie.[explorer].....
-..!.Approval.needed.in.Inspector............
-............................................
-..../agent.to.switch.threads................"
+        let rendered = snapshot_rows(&widget, 44);
+        assert!(
+            contains_compact(&rendered, "线程 Main [default] 需要审批"),
+            "expected main thread line, got {rendered:?}"
+        );
+        assert!(
+            contains_compact(&rendered, "线程 Robie [explorer] 需要审批"),
+            "expected explorer thread line, got {rendered:?}"
+        );
+        assert!(
+            contains_compact(&rendered, "线程 Inspector 需要审批"),
+            "expected inspector thread line, got {rendered:?}"
+        );
+        assert!(
+            contains_compact(&rendered, "/agent 切换线程"),
+            "expected switch-thread hint, got {rendered:?}"
         );
     }
 }

@@ -591,9 +591,9 @@ impl HistoryCell for UnifiedExecInteractionCell {
         let waited_only = self.stdin.is_empty();
 
         let mut header_spans = if waited_only {
-            vec!["• Waited for background terminal".bold()]
+            vec!["• 等待后台终端".bold()]
         } else {
-            vec!["↳ ".dim(), "Interacted with background terminal".bold()]
+            vec!["↳ ".dim(), "与后台终端交互".bold()]
         };
         if let Some(command) = &self.command_display
             && !command.is_empty()
@@ -665,7 +665,7 @@ impl HistoryCell for UnifiedExecProcessesCell {
         out.push("".into());
 
         if self.processes.is_empty() {
-            out.push("  • No background terminals running.".italic().into());
+            out.push("  • 当前没有后台终端在运行。".italic().into());
             return out;
         }
 
@@ -1712,7 +1712,7 @@ pub(crate) fn new_mcp_tools_output(
     ];
 
     if tools.is_empty() {
-        lines.push("  • No MCP tools available.".italic().into());
+        lines.push("  • 没有可用的 MCP 工具。".italic().into());
         lines.push("".into());
     }
 
@@ -1737,17 +1737,17 @@ pub(crate) fn new_mcp_tools_output(
         let mut header: Vec<Span<'static>> = vec!["  • ".into(), server.clone().into()];
         if !cfg.enabled {
             header.push(" ".into());
-            header.push("(disabled)".red());
+            header.push("(已禁用)".red());
             lines.push(header.into());
             if let Some(reason) = cfg.disabled_reason.as_ref().map(ToString::to_string) {
-                lines.push(vec!["    • Reason: ".into(), reason.dim()].into());
+                lines.push(vec!["    • 原因：".into(), reason.dim()].into());
             }
             lines.push(Line::from(""));
             continue;
         }
         lines.push(header.into());
-        lines.push(vec!["    • Status: ".into(), "enabled".green()].into());
-        lines.push(vec!["    • Auth: ".into(), auth_status.to_string().into()].into());
+        lines.push(vec!["    • 状态：".into(), "已启用".green()].into());
+        lines.push(vec!["    • 认证：".into(), auth_status.to_string().into()].into());
 
         match &cfg.transport {
             McpServerTransportConfig::Stdio {
@@ -1763,15 +1763,16 @@ pub(crate) fn new_mcp_tools_output(
                     format!(" {}", args.join(" "))
                 };
                 let cmd_display = format!("{command}{args_suffix}");
-                lines.push(vec!["    • Command: ".into(), cmd_display.into()].into());
+                lines.push(vec!["    • 命令：".into(), cmd_display.into()].into());
 
                 if let Some(cwd) = cwd.as_ref() {
-                    lines.push(vec!["    • Cwd: ".into(), cwd.display().to_string().into()].into());
+                    lines
+                        .push(vec!["    • 目录：".into(), cwd.display().to_string().into()].into());
                 }
 
                 let env_display = format_env_display(env.as_ref(), env_vars);
                 if env_display != "-" {
-                    lines.push(vec!["    • Env: ".into(), env_display.into()].into());
+                    lines.push(vec!["    • 环境变量：".into(), env_display.into()].into());
                 }
             }
             McpServerTransportConfig::StreamableHttp {
@@ -1780,7 +1781,7 @@ pub(crate) fn new_mcp_tools_output(
                 env_http_headers,
                 ..
             } => {
-                lines.push(vec!["    • URL: ".into(), url.clone().into()].into());
+                lines.push(vec!["    • URL：".into(), url.clone().into()].into());
                 if let Some(headers) = http_headers.as_ref()
                     && !headers.is_empty()
                 {
@@ -1904,10 +1905,10 @@ impl HistoryCell for RequestUserInputResultCell {
             .count();
         let unanswered = total.saturating_sub(answered);
 
-        let mut header = vec!["•".dim(), " ".into(), "Questions".bold()];
-        header.push(format!(" {answered}/{total} answered").dim());
+        let mut header = vec!["•".dim(), " ".into(), "问题".bold()];
+        header.push(format!(" 已回答 {answered}/{total}").dim());
         if self.interrupted {
-            header.push(" (interrupted)".cyan());
+            header.push("（已中断）".cyan());
         }
 
         let mut lines: Vec<Line<'static>> = vec![header.into()];
@@ -1926,7 +1927,7 @@ impl HistoryCell for RequestUserInputResultCell {
                 Style::default(),
             );
             if answer_missing && let Some(last) = question_lines.last_mut() {
-                last.spans.push(" (unanswered)".dim());
+                last.spans.push("（未回答）".dim());
             }
             lines.extend(question_lines);
 
@@ -1937,8 +1938,8 @@ impl HistoryCell for RequestUserInputResultCell {
                 lines.extend(wrap_with_prefix(
                     "••••••",
                     width,
-                    "    answer: ".dim(),
-                    "            ".dim(),
+                    "    回答：".dim(),
+                    "          ".dim(),
                     Style::default().fg(Color::Cyan),
                 ));
                 continue;
@@ -1950,22 +1951,22 @@ impl HistoryCell for RequestUserInputResultCell {
                 lines.extend(wrap_with_prefix(
                     &option,
                     width,
-                    "    answer: ".dim(),
-                    "            ".dim(),
+                    "    回答：".dim(),
+                    "          ".dim(),
                     Style::default().fg(Color::Cyan),
                 ));
             }
             if let Some(note) = note {
                 let (label, continuation, style) = if question.options.is_some() {
                     (
-                        "    note: ".dim(),
+                        "    备注：".dim(),
                         "          ".dim(),
                         Style::default().fg(Color::Cyan),
                     )
                 } else {
                     (
-                        "    answer: ".dim(),
-                        "            ".dim(),
+                        "    回答：".dim(),
+                        "          ".dim(),
                         Style::default().fg(Color::Cyan),
                     )
                 };
@@ -1974,7 +1975,7 @@ impl HistoryCell for RequestUserInputResultCell {
         }
 
         if self.interrupted && unanswered > 0 {
-            let summary = format!("interrupted with {unanswered} unanswered");
+            let summary = format!("已中断，仍有 {unanswered} 个未回答");
             lines.extend(wrap_with_prefix(
                 &summary,
                 width,
@@ -2503,11 +2504,7 @@ mod tests {
         let lines = render_transcript(&cell);
         assert_eq!(
             lines,
-            vec![
-                "↳ Interacted with background terminal · echo hello",
-                "  └ ls",
-                "    pwd",
-            ],
+            vec!["↳ 与后台终端交互 · echo hello", "  └ ls", "    pwd",],
         );
     }
 
@@ -2515,7 +2512,7 @@ mod tests {
     fn unified_exec_interaction_cell_renders_wait() {
         let cell = new_unified_exec_interaction(None, String::new());
         let lines = render_transcript(&cell);
-        assert_eq!(lines, vec!["• Waited for background terminal"]);
+        assert_eq!(lines, vec!["• 等待后台终端"]);
     }
 
     #[test]
@@ -2937,8 +2934,9 @@ mod tests {
                 }
             })
             .collect::<String>();
+        let compact_first_row = first_row.split_whitespace().collect::<String>();
         assert!(
-            first_row.contains("Interacted with"),
+            compact_first_row.contains("与后台终端交互"),
             "expected first rendered row to keep the header visible, got: {first_row:?}"
         );
     }

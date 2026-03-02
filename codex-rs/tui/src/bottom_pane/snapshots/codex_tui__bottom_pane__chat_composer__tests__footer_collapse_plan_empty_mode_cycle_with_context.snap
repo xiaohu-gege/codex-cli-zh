@@ -10,4 +10,4 @@ expression: terminal.backend()
 "                                                            "
 "                                                            "
 "                                                            "
-"  Plan mode (shift+tab to cycle)         100% context left  "
+"  ? 快捷键 | 计划模式 (shift+tab 切换)     剩余上下文 100%  " Hidden by multi-width symbols: [(5, " "), (7, " "), (9, " "), (14, " "), (16, " "), (18, " "), (20, " "), (34, " "), (36, " "), (44, " "), (46, " "), (48, " "), (50, " "), (52, " ")]
