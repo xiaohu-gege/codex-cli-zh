@@ -1,43 +1,29 @@
-﻿# codex-cli-zh
+﻿# codex-cli-zh 使用指南
 
-`codex-cli-zh` 是 `openai/codex` 的中文增强版 Fork。
+<p align="center">
+  <img src="./docs/images/ui-preview.png" alt="codex-cli-zh 界面预览" width="88%" />
+</p>
 
-目标：
+`codex-cli-zh` 是 `openai/codex` 的中文增强版 Fork，当前版本基线对齐 `0.106.0`。
 
-- 保持与官方版本同步（当前对齐 `0.106.0`）。
-- 持续完善中文界面文案（菜单、提示、斜杠命令说明等）。
-- 提供可直接下载的多平台二进制文件。
+## 安装方式
 
-## 1. 下载与安装
-
-### 1.1 从 Releases 直接下载（推荐）
+### 方式 1：下载本仓库 Releases（推荐）
 
 进入仓库 `Releases` 页面，下载对应系统文件：
 
-- Windows x64: `codex-<tag>-windows-x86_64.zip`
-- macOS Intel: `codex-<tag>-macos-x86_64.tar.gz`
-- macOS Apple Silicon: `codex-<tag>-macos-aarch64.tar.gz`
-- Linux x64: `codex-<tag>-linux-x86_64.tar.gz`
-- Linux arm64: `codex-<tag>-linux-aarch64.tar.gz`
+- Windows x64：`codex-<tag>-windows-x86_64.zip`
+- macOS Intel：`codex-<tag>-macos-x86_64.tar.gz`
+- macOS Apple Silicon：`codex-<tag>-macos-aarch64.tar.gz`
+- Linux x64：`codex-<tag>-linux-x86_64.tar.gz`
+- Linux arm64：`codex-<tag>-linux-aarch64.tar.gz`
 
 解压后：
 
-- Windows 可执行文件名是 `codex.exe`
-- macOS/Linux 可执行文件名是 `codex`
+- Windows 执行 `codex.exe`
+- macOS/Linux 执行 `./codex`
 
-### 1.2 使用 npm 全局安装
-
-```bash
-npm install -g @openai/codex
-```
-
-安装后可在任意目录直接执行：
-
-```bash
-codex --help
-```
-
-### 1.3 从源码编译
+### 方式 2：源码编译
 
 ```powershell
 cargo build --release --locked --manifest-path codex-rs/Cargo.toml -p codex-cli --bin codex
@@ -45,27 +31,23 @@ cargo build --release --locked --manifest-path codex-rs/Cargo.toml -p codex-cli 
 
 编译产物路径：
 
-- Windows: `codex-rs/target/release/codex.exe`
-- macOS/Linux: `codex-rs/target/release/codex`
+- Windows：`codex-rs/target/release/codex.exe`
+- macOS/Linux：`codex-rs/target/release/codex`
 
-## 2. 全局使用（重点）
+## 全局使用
 
-### 2.1 Windows 全局使用
+### Windows
 
-方式 A（推荐）：放到固定目录并加入 PATH。
-
-1. 新建目录，例如 `C:\Tools\codex`。
-2. 把 `codex.exe` 放进去。
-3. 将 `C:\Tools\codex` 加入系统 `PATH`。
-4. 重新打开终端后执行：
+1. 新建目录（示例）：`C:\Tools\codex`
+2. 把 `codex.exe` 放入该目录
+3. 将 `C:\Tools\codex` 加入系统 `PATH`
+4. 重新打开终端执行：
 
 ```powershell
 codex --version
 ```
 
-方式 B：使用 npm 全局安装（自动放入可执行路径）。
-
-### 2.2 macOS 全局使用
+### macOS / Linux
 
 ```bash
 chmod +x codex
@@ -73,120 +55,46 @@ sudo mv codex /usr/local/bin/codex
 codex --version
 ```
 
-### 2.3 Linux 全局使用
-
-```bash
-chmod +x codex
-sudo mv codex /usr/local/bin/codex
-codex --version
-```
-
-## 3. 使用教程（从 0 到 1）
-
-### 3.1 首次启动
+## 首次使用
 
 ```bash
 codex
 ```
 
-按界面提示完成认证：
+按提示完成登录（ChatGPT 或 API Key）。
 
-- `Sign in with ChatGPT`（推荐）
-- 或使用 API Key
-
-### 3.2 查看命令帮助
+## 常用命令
 
 ```bash
+# 查看帮助
 codex --help
-```
 
-### 3.3 交互模式（TUI）
-
-```bash
+# 交互模式（TUI）
 codex
-```
 
-进入后常见操作：
+# 非交互模式
+codex exec "请分析当前仓库并给出重构建议"
 
-- 输入自然语言需求直接执行。
-- 输入 `/` 查看斜杠命令及二级菜单说明。
-- 在对话中持续迭代修改代码、运行命令、查看结果。
-
-### 3.4 非交互模式（适合脚本/自动化）
-
-```bash
-codex exec "请分析当前仓库并输出重构建议"
-```
-
-也可以将提示词通过标准输入传入。
-
-### 3.5 常见子命令示例
-
-```bash
+# 其它子命令
 codex app
-codex exec "..."
 codex mcp --help
 ```
 
-## 4. 更新到新版本
+## 交互模式常用操作
 
-### 4.1 二进制用户更新
+1. 启动后直接输入自然语言需求。
+2. 输入 `/` 打开斜杠命令列表。
+3. 通过回车执行任务，按界面提示完成授权。
+4. 根据输出继续追问，直到任务完成。
 
-- 到 `Releases` 下载新版本压缩包，替换旧文件。
+## 更新
 
-### 4.2 npm 用户更新
+- 二进制安装：下载新版本压缩包替换旧文件。
+- 源码安装：拉取最新代码后重新编译。
 
-```bash
-npm update -g @openai/codex
-```
+## 说明
 
-## 5. Release 页面没有文件时怎么处理
-
-如果 `Releases` 页面没有附件，通常是发布工作流失败或被跳过：
-
-1. 打开 `Actions` 页面。
-2. 查看 `release-binaries` 工作流是否成功。
-3. 检查失败日志（常见是 Linux 依赖缺失）。
-4. 修复后重新打 tag 触发发布。
-
-## 6. 维护者发布步骤
-
-### 6.1 提交并推送代码
-
-```bash
-git add -A
-git commit -m "your message"
-git push origin main
-```
-
-### 6.2 打发布标签（会自动编译并上传资产）
-
-```bash
-git tag -a v0.106.0-zh.3 -m "Release v0.106.0-zh.3"
-git push origin v0.106.0-zh.3
-```
-
-发布工作流会自动完成：
-
-- 多平台构建
-- 生成压缩包
-- 上传到 GitHub Release
-
-## 7. 与官方同步
-
-本地建议保留两个远程：
-
-- `origin` -> 你的 fork
-- `upstream` -> `openai/codex`
-
-同步官方更新常用流程：
-
-```bash
-git fetch upstream
-git checkout main
-git merge upstream/main
-git push origin main
-```
+`npm install -g @openai/codex` 安装的是官方 npm 包，不是本仓库的编译产物。
 
 ---
 
