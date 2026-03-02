@@ -62,8 +62,13 @@ You can also use Codex with an API key, but this requires [additional setup](htt
 
 1. 直接下载已编译文件（推荐）
 
-- 打开本仓库 `Releases` 页面，下载 Windows 压缩包（`codex-<tag>-windows-x86_64.zip`）。
-- 解压后可直接运行 `codex.exe`。
+- 打开本仓库 `Releases` 页面，按系统下载对应文件：
+- Windows: `codex-<tag>-windows-x86_64.zip`
+- macOS Intel: `codex-<tag>-macos-x86_64.tar.gz`
+- macOS Apple Silicon: `codex-<tag>-macos-aarch64.tar.gz`
+- Linux x86_64: `codex-<tag>-linux-x86_64.tar.gz`
+- Linux arm64: `codex-<tag>-linux-aarch64.tar.gz`
+- Windows 使用 `codex.exe`；macOS/Linux 使用 `./codex`。
 
 2. 从源码编译
 

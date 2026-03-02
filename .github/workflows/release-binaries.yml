@@ -1,0 +1,155 @@
+name: release-binaries
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (for example: v1.0.0)"
+        required: true
+      prerelease:
+        description: "Mark this release as pre-release"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            asset_suffix: windows-x86_64
+            bin_name: codex.exe
+          - os: macos-13
+            target: x86_64-apple-darwin
+            asset_suffix: macos-x86_64
+            bin_name: codex
+          - os: macos-14
+            target: aarch64-apple-darwin
+            asset_suffix: macos-aarch64
+            bin_name: codex
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            asset_suffix: linux-x86_64
+            bin_name: codex
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            asset_suffix: linux-aarch64
+            bin_name: codex
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build codex
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --target "${{ matrix.target }}" --manifest-path codex-rs/Cargo.toml -p codex-cli --bin codex
+
+      - name: Package Windows binary
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item "codex-rs/target/${{ matrix.target }}/release/${{ matrix.bin_name }}" "dist/${{ matrix.bin_name }}"
+          @"
+          Codex CLI (Windows)
+
+          1) Unzip this package.
+          2) Open PowerShell in this folder.
+          3) Run: .\codex.exe --help
+
+          Optional:
+          - Move codex.exe to a custom folder and add it to PATH.
+          "@ | Set-Content -Path dist/README.txt -Encoding UTF8
+          Compress-Archive -Path dist/* -DestinationPath "codex-${env:TAG_NAME}-${{ matrix.asset_suffix }}.zip" -Force
+
+      - name: Package Unix binary
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp "codex-rs/target/${{ matrix.target }}/release/${{ matrix.bin_name }}" "dist/${{ matrix.bin_name }}"
+          chmod +x "dist/${{ matrix.bin_name }}"
+          cat > dist/README.txt <<'EOF'
+          Codex CLI
+
+          1) Extract the archive.
+          2) Open a terminal in this folder.
+          3) Run: ./codex --help
+
+          Optional:
+          - Move codex to a folder in PATH, for example /usr/local/bin.
+          EOF
+          tar -C dist -czf "codex-${TAG_NAME}-${{ matrix.asset_suffix }}.tar.gz" .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: codex-${{ matrix.asset_suffix }}
+          path: |
+            codex-${{ env.TAG_NAME }}-${{ matrix.asset_suffix }}.zip
+            codex-${{ env.TAG_NAME }}-${{ matrix.asset_suffix }}.tar.gz
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v7
+        with:
+          path: dist
+
+      - name: Collect release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          find dist -type f \( -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release/ \;
+          ls -lh release
+
+      - name: Validate tag format
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.].+)?$ ]] || {
+            echo "Invalid tag format: ${TAG_NAME}"
+            echo "Expected format like v1.0.0 / v1.0.0-beta.1"
+            exit 1
+          }
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ env.TAG_NAME }}
+          generate_release_notes: true
+          prerelease: ${{ github.event_name == 'workflow_dispatch' && inputs.prerelease || false }}
+          files: |
+            release/*.zip
+            release/*.tar.gz
