@@ -66,9 +66,6 @@ codex
 ## 常用命令
 
 ```bash
-# 查看帮助
-codex --help
-
 # 交互模式（TUI）
 codex
 

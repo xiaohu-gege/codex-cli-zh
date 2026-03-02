@@ -84,7 +84,7 @@ jobs:
 
           1) Unzip this package.
           2) Open PowerShell in this folder.
-          3) Run: .\codex.exe --help
+          3) Run: .\codex.exe
 
           Optional:
           - Move codex.exe to a custom folder and add it to PATH.
@@ -104,7 +104,7 @@ jobs:
 
           1) Extract the archive.
           2) Open a terminal in this folder.
-          3) Run: ./codex --help
+          3) Run: ./codex
 
           Optional:
           - Move codex to a folder in PATH, for example /usr/local/bin.
