@@ -1,10 +1,10 @@
-﻿# codex-cli-zh 使用指南
+﻿# codex汉化版使用指南
 
 <p align="center">
-  <img src="./docs/images/ui-preview.png" alt="codex-cli-zh 界面预览" width="88%" />
+  <img src="./docs/images/ui-cn.png" alt="codex-cli-zh 中文界面预览" width="88%" />
 </p>
 
-`codex-cli-zh` 是 `openai/codex` 的中文增强版 Fork，当前版本基线对齐 `0.106.0`。
+`codex-cli-zh` 是 `openai/codex` 的中文增强版 Fork，中文界面，只做汉化，无其它修改。当前版本基线对齐 `0.106.0`。
 
 ## 安装方式
 
@@ -44,7 +44,7 @@ cargo build --release --locked --manifest-path codex-rs/Cargo.toml -p codex-cli 
 4. 重新打开终端执行：
 
 ```powershell
-codex --version
+codex
 ```
 
 ### macOS / Linux
@@ -52,16 +52,8 @@ codex --version
 ```bash
 chmod +x codex
 sudo mv codex /usr/local/bin/codex
-codex --version
-```
-
-## 首次使用
-
-```bash
 codex
 ```
-
-按提示完成登录（ChatGPT 或 API Key）。
 
 ## 常用命令
 
@@ -88,10 +80,6 @@ codex mcp --help
 
 - 二进制安装：下载新版本压缩包替换旧文件。
 - 源码安装：拉取最新代码后重新编译。
-
-## 说明
-
-`npm install -g @openai/codex` 安装的是官方 npm 包，不是本仓库的编译产物。
 
 ---
 
