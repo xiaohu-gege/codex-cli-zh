@@ -4,10 +4,11 @@ on:
   push:
     tags:
       - "v*"
+      - "rust-v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (for example: v1.0.0)"
+        description: "Release tag (v1.0.0 / rust-v1.0.0 / 1.0.0)"
         required: true
       prerelease:
         description: "Mark this release as pre-release"
@@ -20,10 +21,43 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
-  TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
 jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.meta.outputs.tag_name }}
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - name: Resolve release tag and version
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          raw_tag="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          raw_tag="${raw_tag#refs/tags/}"
+
+          if [[ "${raw_tag}" =~ ^rust-v([0-9]+\.[0-9]+\.[0-9]+([-.].+)?)$ ]]; then
+            version="${BASH_REMATCH[1]}"
+            tag_name="${raw_tag}"
+          elif [[ "${raw_tag}" =~ ^v([0-9]+\.[0-9]+\.[0-9]+([-.].+)?)$ ]]; then
+            version="${BASH_REMATCH[1]}"
+            tag_name="${raw_tag}"
+          elif [[ "${raw_tag}" =~ ^([0-9]+\.[0-9]+\.[0-9]+([-.].+)?)$ ]]; then
+            version="${BASH_REMATCH[1]}"
+            tag_name="v${version}"
+          else
+            echo "Invalid tag format: ${raw_tag}"
+            echo "Expected: v1.0.0 / rust-v1.0.0 / 1.0.0 (supports prerelease suffixes)"
+            exit 1
+          fi
+
+          echo "tag_name=${tag_name}" >> "${GITHUB_OUTPUT}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
   build:
+    needs: metadata
+    continue-on-error: ${{ matrix.optional == true }}
     strategy:
       fail-fast: false
       matrix:
@@ -32,7 +66,7 @@ jobs:
             target: x86_64-pc-windows-msvc
             asset_suffix: windows-x86_64
             bin_name: codex.exe
-          - os: macos-14
+          - os: macos-13
             target: x86_64-apple-darwin
             asset_suffix: macos-x86_64
             bin_name: codex
@@ -48,6 +82,7 @@ jobs:
             target: aarch64-unknown-linux-gnu
             asset_suffix: linux-aarch64
             bin_name: codex
+            optional: true
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -67,7 +102,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y pkg-config libcap-dev
 
-      - name: Build codex
+      - name: Build codex (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cargo build --release --locked --target "${{ matrix.target }}" --manifest-path codex-rs/Cargo.toml -p codex-cli --bin codex
+
+      - name: Build codex (Unix)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           set -euo pipefail
@@ -89,7 +131,7 @@ jobs:
           Optional:
           - Move codex.exe to a custom folder and add it to PATH.
           "@ | Set-Content -Path dist/README.txt -Encoding UTF8
-          Compress-Archive -Path dist/* -DestinationPath "codex-${env:TAG_NAME}-${{ matrix.asset_suffix }}.zip" -Force
+          Compress-Archive -Path dist/* -DestinationPath "codex-${{ needs.metadata.outputs.tag_name }}-${{ matrix.asset_suffix }}.zip" -Force
 
       - name: Package Unix binary
         if: runner.os != 'Windows'
@@ -109,19 +151,27 @@ jobs:
           Optional:
           - Move codex to a folder in PATH, for example /usr/local/bin.
           EOF
-          tar -C dist -czf "codex-${TAG_NAME}-${{ matrix.asset_suffix }}.tar.gz" .
+          tar -C dist -czf "codex-${{ needs.metadata.outputs.tag_name }}-${{ matrix.asset_suffix }}.tar.gz" .
 
-      - name: Upload artifact
+      - name: Upload Windows artifact
+        if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: codex-${{ matrix.asset_suffix }}
-          path: |
-            codex-${{ env.TAG_NAME }}-${{ matrix.asset_suffix }}.zip
-            codex-${{ env.TAG_NAME }}-${{ matrix.asset_suffix }}.tar.gz
+          if-no-files-found: error
+          path: codex-${{ needs.metadata.outputs.tag_name }}-${{ matrix.asset_suffix }}.zip
+
+      - name: Upload Unix artifact
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-${{ matrix.asset_suffix }}
+          if-no-files-found: error
+          path: codex-${{ needs.metadata.outputs.tag_name }}-${{ matrix.asset_suffix }}.tar.gz
 
   create-release:
-    needs: build
-    if: ${{ always() }}
+    needs: [metadata, build]
+    if: ${{ needs.build.result == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -146,24 +196,13 @@ jobs:
             exit 1
           fi
 
-      - name: Validate tag format
-        shell: bash
-        run: |
-          set -euo pipefail
-          [[ "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([-.].+)?$ ]] || {
-            echo "Invalid tag format: ${TAG_NAME}"
-            echo "Expected format like v1.0.0 / v1.0.0-beta.1"
-            exit 1
-          }
-
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.TAG_NAME }}
-          target_commitish: ${{ github.sha }}
-          name: ${{ env.TAG_NAME }}
+          tag_name: ${{ needs.metadata.outputs.tag_name }}
+          name: ${{ needs.metadata.outputs.version }}
           generate_release_notes: true
-          prerelease: ${{ github.event_name == 'workflow_dispatch' && inputs.prerelease || false }}
+          prerelease: ${{ contains(needs.metadata.outputs.version, '-') || (github.event_name == 'workflow_dispatch' && inputs.prerelease) }}
           files: |
             release/*.zip
             release/*.tar.gz
