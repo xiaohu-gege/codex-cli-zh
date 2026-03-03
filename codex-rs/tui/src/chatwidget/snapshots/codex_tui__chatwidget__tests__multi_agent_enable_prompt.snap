@@ -1,0 +1,11 @@
+---
+source: tui/src/chatwidget/tests.rs
+expression: popup
+---
+  启 用 多 智 能 体 ？
+  你 当 前 配 置 中 已 关 闭 多 智 能 体 。
+
+› 1. 是 ， 启 用   现 在 保 存 设 置 。 你 需 要 开 启 新 会 话 后 才 能 使 用 。
+  2. 暂 不 启 用   保 持 多 智 能 体 为 关 闭 状 态 。
+
+  按  enter 确 认 ， 或 按  esc 返 回

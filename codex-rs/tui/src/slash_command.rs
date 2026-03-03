@@ -53,6 +53,7 @@ pub enum SlashCommand {
     Realtime,
     Settings,
     TestApproval,
+    MultiAgents,
     // Debugging commands.
     #[strum(serialize = "debug-m-drop")]
     MemoryDrop,
@@ -93,7 +94,7 @@ impl SlashCommand {
             SlashCommand::Settings => "配置实时麦克风与扬声器",
             SlashCommand::Plan => "切换到计划模式",
             SlashCommand::Collab => "切换协作模式（实验性）",
-            SlashCommand::Agent => "切换活动智能体线程",
+            SlashCommand::Agent | SlashCommand::MultiAgents => "切换活动智能体线程",
             SlashCommand::Approvals => "设置 Codex 可执行的操作",
             SlashCommand::Permissions => "设置 Codex 可执行的操作",
             SlashCommand::ElevateSandbox => "配置高权限智能体沙箱",
@@ -167,7 +168,7 @@ impl SlashCommand {
             SlashCommand::Realtime => true,
             SlashCommand::Settings => true,
             SlashCommand::Collab => true,
-            SlashCommand::Agent => true,
+            SlashCommand::Agent | SlashCommand::MultiAgents => true,
             SlashCommand::Statusline => false,
             SlashCommand::Theme => false,
         }
