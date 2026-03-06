@@ -4,7 +4,7 @@
   <img src="./docs/images/ui-cn.png" alt="codex-cli-zh 中文界面预览" width="88%" />
 </p>
 
-`codex-cli-zh` 是 `openai/codex` 的中文增强版 Fork，中文界面，只做汉化，无其它修改。当前版本基线对齐 `0.107.0`。
+`codex-cli-zh` 是 `openai/codex` 的中文增强版 Fork，中文界面，只做汉化，无其它修改。当前版本基线对齐官方稳定版 `0.111.0`，代码已同步至最新 `upstream/main`。
 
 ## 安装方式
 

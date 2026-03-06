@@ -15,7 +15,7 @@ expression: term.backend().vt100().screen().contents()
 • 处理中 (0s • esc 中断)
 
   ↳ Queued while /review is running.
-    ⌥ + ↑ 编辑
+    ⌥ + ↑ edit
 
 › Ask Codex to do anything
 

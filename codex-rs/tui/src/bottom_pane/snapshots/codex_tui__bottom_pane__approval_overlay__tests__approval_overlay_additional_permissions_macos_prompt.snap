@@ -1,0 +1,18 @@
+---
+source: tui/src/bottom_pane/approval_overlay.rs
+expression: "render_overlay_lines(&view, 120)"
+---
+
+  是 否 允 许 执 行 以 下 命 令 ？
+
+  原 因 ： need macOS automation
+
+  权 限 规 则 ： macOS preferences readwrite; macOS automation com.apple.Calendar, com.apple.Notes; macOS accessibility;
+  macOS calendar
+
+  $ osascript -e 'tell application'
+
+› 1. 是 ， 继 续 执 行  (y)
+  2. 否 ， 并 告 知  Codex 应 如 何 调 整  (esc)
+
+  按  enter 确 认 ， 按  esc 取 消

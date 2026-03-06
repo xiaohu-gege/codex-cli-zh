@@ -13,6 +13,7 @@ pub enum SlashCommand {
     // DO NOT ALPHA-SORT! Enum order is presentation order in the popup, so
     // more frequently used commands should be listed first.
     Model,
+    Fast,
     Approvals,
     Permissions,
     #[strum(serialize = "setup-default-sandbox")]
@@ -89,6 +90,7 @@ impl SlashCommand {
             SlashCommand::MemoryDrop => "请勿使用",
             SlashCommand::MemoryUpdate => "请勿使用",
             SlashCommand::Model => "选择模型与推理级别",
+            SlashCommand::Fast => "切换 Fast 模式，以 2 倍配额换取最快推理速度",
             SlashCommand::Personality => "选择 Codex 的沟通风格",
             SlashCommand::Realtime => "切换实时语音模式（实验性）",
             SlashCommand::Settings => "配置实时麦克风与扬声器",
@@ -123,6 +125,7 @@ impl SlashCommand {
             SlashCommand::Review
                 | SlashCommand::Rename
                 | SlashCommand::Plan
+                | SlashCommand::Fast
                 | SlashCommand::SandboxReadRoot
         )
     }
@@ -137,6 +140,7 @@ impl SlashCommand {
             | SlashCommand::Compact
             // | SlashCommand::Undo
             | SlashCommand::Model
+            | SlashCommand::Fast
             | SlashCommand::Personality
             | SlashCommand::Approvals
             | SlashCommand::Permissions

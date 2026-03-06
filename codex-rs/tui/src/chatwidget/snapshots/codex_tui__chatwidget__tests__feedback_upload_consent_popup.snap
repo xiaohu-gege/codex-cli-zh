@@ -6,6 +6,11 @@ expression: popup
 
   将 发 送 以 下 文 件 ：
     • codex-logs.log
+    • codex-connectivity-diagnostics.txt
+
+  Connectivity diagnostics
+    - OPENAI_BASE_URL is set and may affect connectivity.
+      - OPENAI_BASE_URL = hello
 
 › 1. 是   将 当 前  Codex 会 话 日 志 分 享 给 团 队 以 协 助 排 查 。
   2. 否

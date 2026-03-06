@@ -7,7 +7,7 @@ expression: "normalize_snapshot_paths(render_overlay_lines(&view, 120))"
 
   原 因 ： need filesystem access
 
-  权 限 规 则 ： 读 取  `/tmp/readme.txt`; 写 入  `/tmp/out.txt`
+  权 限 规 则 ： network; 读 取  `/tmp/readme.txt`; 写 入  `/tmp/out.txt`
 
   $ cat /tmp/readme.txt
 

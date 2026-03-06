@@ -332,7 +332,7 @@ impl AuthModeWidget {
         let chatgpt_description = if !self.is_chatgpt_login_allowed() {
             "ChatGPT 登录已禁用"
         } else {
-            "Plus、Pro、Team 与 Enterprise 套餐已包含使用额度"
+            "Plus、Pro、Business 与 Enterprise 套餐已包含使用额度"
         };
         let device_code_description = "使用一次性验证码在另一台设备登录";
 
