@@ -12,8 +12,11 @@ use codex_protocol::config_types::SandboxMode;
 #[derive(Clone, Copy, Debug, ValueEnum)]
 #[value(rename_all = "kebab-case")]
 pub enum SandboxModeCliArg {
+    /// 只读沙箱，不允许写入文件。
     ReadOnly,
+    /// 工作区可写，其余位置保持受限。
     WorkspaceWrite,
+    /// 完全访问，不启用沙箱隔离。
     DangerFullAccess,
 }
 

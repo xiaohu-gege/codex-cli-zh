@@ -14,15 +14,13 @@ use std::io::IsTerminal;
 use std::io::Read;
 use std::path::PathBuf;
 
-const CHATGPT_LOGIN_DISABLED_MESSAGE: &str =
-    "ChatGPT login is disabled. Use API key login instead.";
-const API_KEY_LOGIN_DISABLED_MESSAGE: &str =
-    "API key login is disabled. Use ChatGPT login instead.";
-const LOGIN_SUCCESS_MESSAGE: &str = "Successfully logged in";
+const CHATGPT_LOGIN_DISABLED_MESSAGE: &str = "ChatGPT 登录已禁用，请改用 API Key 登录。";
+const API_KEY_LOGIN_DISABLED_MESSAGE: &str = "API Key 登录已禁用，请改用 ChatGPT 登录。";
+const LOGIN_SUCCESS_MESSAGE: &str = "登录成功";
 
 fn print_login_server_start(actual_port: u16, auth_url: &str) {
     eprintln!(
-        "Starting local login server on http://localhost:{actual_port}.\nIf your browser did not open, navigate to this URL to authenticate:\n\n{auth_url}\n\nOn a remote or headless machine? Use `codex login --device-auth` instead."
+        "正在本地启动登录服务：http://localhost:{actual_port}\n如果浏览器未自动打开，请访问以下链接完成认证：\n\n{auth_url}\n\n如果你在远程或无头环境中，请改用 `codex login --device-auth`。"
     );
 }
 
@@ -66,7 +64,7 @@ pub async fn run_login_with_chatgpt(cli_config_overrides: CliConfigOverrides) ->
             std::process::exit(0);
         }
         Err(e) => {
-            eprintln!("Error logging in: {e}");
+            eprintln!("登录失败：{e}");
             std::process::exit(1);
         }
     }
@@ -93,7 +91,7 @@ pub async fn run_login_with_api_key(
             std::process::exit(0);
         }
         Err(e) => {
-            eprintln!("Error logging in: {e}");
+            eprintln!("登录失败：{e}");
             std::process::exit(1);
         }
     }
@@ -104,22 +102,22 @@ pub fn read_api_key_from_stdin() -> String {
 
     if stdin.is_terminal() {
         eprintln!(
-            "--with-api-key expects the API key on stdin. Try piping it, e.g. `printenv OPENAI_API_KEY | codex login --with-api-key`."
+            "`--with-api-key` 需要从 stdin 读取 API Key。例如：`printenv OPENAI_API_KEY | codex login --with-api-key`。"
         );
         std::process::exit(1);
     }
 
-    eprintln!("Reading API key from stdin...");
+    eprintln!("正在从 stdin 读取 API Key……");
 
     let mut buffer = String::new();
     if let Err(err) = stdin.read_to_string(&mut buffer) {
-        eprintln!("Failed to read API key from stdin: {err}");
+        eprintln!("从 stdin 读取 API Key 失败：{err}");
         std::process::exit(1);
     }
 
     let api_key = buffer.trim().to_string();
     if api_key.is_empty() {
-        eprintln!("No API key provided via stdin.");
+        eprintln!("stdin 中未提供 API Key。");
         std::process::exit(1);
     }
 
@@ -153,7 +151,7 @@ pub async fn run_login_with_device_code(
             std::process::exit(0);
         }
         Err(e) => {
-            eprintln!("Error logging in with device code: {e}");
+            eprintln!("使用设备码登录失败：{e}");
             std::process::exit(1);
         }
     }
@@ -193,7 +191,7 @@ pub async fn run_login_with_device_code_fallback_to_browser(
         }
         Err(e) => {
             if e.kind() == std::io::ErrorKind::NotFound {
-                eprintln!("Device code login is not enabled; falling back to browser login.");
+                eprintln!("设备码登录未启用，正在回退到浏览器登录。");
                 match run_login_server(opts) {
                     Ok(server) => {
                         print_login_server_start(server.actual_port, &server.auth_url);
@@ -203,18 +201,18 @@ pub async fn run_login_with_device_code_fallback_to_browser(
                                 std::process::exit(0);
                             }
                             Err(e) => {
-                                eprintln!("Error logging in: {e}");
+                                eprintln!("登录失败：{e}");
                                 std::process::exit(1);
                             }
                         }
                     }
                     Err(e) => {
-                        eprintln!("Error logging in: {e}");
+                        eprintln!("登录失败：{e}");
                         std::process::exit(1);
                     }
                 }
             } else {
-                eprintln!("Error logging in with device code: {e}");
+                eprintln!("使用设备码登录失败：{e}");
                 std::process::exit(1);
             }
         }
